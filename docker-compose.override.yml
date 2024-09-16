@@ -1,0 +1,5 @@
+services:
+  my-bot:
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}

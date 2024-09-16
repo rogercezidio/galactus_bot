@@ -1,0 +1,349 @@
+import os
+import re
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+import time
+import logging
+import random
+import requests
+from bs4 import BeautifulSoup
+from openai import AsyncOpenAI
+
+# Enable logging to debug if needed
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+)
+logger = logging.getLogger(__name__)
+
+# Set your OpenAI API key
+client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Get the bot token from an environment variable
+TOKEN = os.getenv('BOT_TOKEN')
+print(f"Bot Token: {TOKEN}")  # Debugging: Check if the token is being retrieved
+
+if TOKEN is None:
+    print("Error: BOT_TOKEN environment variable is not set.")
+    exit(1)
+
+DECK_LIST_URL = 'https://marvelsnapzone.com/tier-list/'
+UPDATE_FILE_PATH = '/app/data/last_update.txt'  # Make sure this matches the volume mount path
+CHAT_IDS_FILE_PATH = '/app/data/chat_ids.txt'  # File to store chat IDs
+GALACTUS_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2Z4amt5dTVlYWEycmZ4bjJ1MzIwemViOTBlcGN1eXVkMXcxcXZzbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7QL0aLRbHtAyc/giphy.gif"
+GALACTUS_PATTERN = re.compile(r'''
+    \b                 # Word boundary
+    (                  # Begin group
+        g\s*           # 'g' with optional spaces
+        [a@4áàâãäå#*]\s*  # 'a' with accented characters and creative variations
+        l\s*           # 'l' with optional spaces
+        [a@4qáàâãäå#*]\s*    # 'a' with accented characters, '@', '4', 'q', '#' with optional spaces
+        [cç]?\s*       # Optional 'c' or 'ç', with optional spaces (for 'galatus')
+        [t7]\s*        # 't' or '7' with optional spaces
+        [uúùûü*]\s*    # 'u' with accented characters or '*' with optional spaces
+        [s$z]\s*       # 's', 'z', or '$' with optional spaces
+        |              # OR
+        gal[a-z@4qáàâãäå#]*t[oõã]*o  # Handle variations like 'galatão', 'galaquitus', 'galatã'
+        |              # OR
+        g[a4]l[a4]ctus # Handle variations like 'g4l4ctus'
+        |              # OR
+        g[a4]l[a4]k[t7]us # Handle 'galaktus' variations with 'k'
+        |              # OR
+        ギャラクタス           # Japanese characters for 'Galactus'
+        |              # OR
+        갈락투스             # Korean characters for 'Galactus'
+        |              # OR
+        Галактус           # Cyrillic (Russian) for 'Galactus'
+        |              # OR
+        جالكتوس           # Arabic for 'Galactus'
+        |              # OR
+        银河吞噬者           # Chinese for 'Galactus' (literally 'Galactic Devourer')
+        |              # OR
+        गैलैक्टस           # Hindi for 'Galactus'
+        |              # OR
+        גלקטוס             # Hebrew for 'Galactus'
+        |              # OR
+        galatus           # Specifically capture 'galatus'
+        |              # OR
+        galaquitus         # Specifically capture 'galaquitus'
+        |              # OR
+        g[a4]lac[a4]t[oõ]*us  # More phonetic variations like 'galactous', 'galactus'
+    )                  # End group
+    \b                 # Word boundary
+''', re.VERBOSE | re.IGNORECASE)
+
+
+last_updated_date = None
+# Set to store chat IDs
+chat_ids = set()
+
+# Function to load chat IDs from a file
+def load_chat_ids():
+    global chat_ids
+    if os.path.exists(CHAT_IDS_FILE_PATH):
+        with open(CHAT_IDS_FILE_PATH, 'r') as file:
+            ids = file.readlines()
+            chat_ids = {int(chat_id.strip()) for chat_id in ids}
+            logger.info(f"Loaded {len(chat_ids)} chat ID(s) from file.")
+    else:
+        logger.info("No previous chat IDs found.")
+
+# Function to save chat IDs to a file
+def save_chat_ids():
+    with open(CHAT_IDS_FILE_PATH, 'w') as file:
+        for chat_id in chat_ids:
+            file.write(f"{chat_id}\n")
+        logger.info(f"Saved {len(chat_ids)} chat ID(s) to file.")
+
+# Function to load the last updated date from a file
+def load_last_updated_date():
+    global last_updated_date
+    if os.path.exists(UPDATE_FILE_PATH):
+        with open(UPDATE_FILE_PATH, 'r') as file:
+            last_updated_date = file.read().strip()
+            logger.info(f"Loaded last updated date from file: {last_updated_date}")
+    else:
+        logger.info("No previous update date found.")
+
+# Function to save the updated date to a file
+def save_last_updated_date(date):
+    global last_updated_date
+    last_updated_date = date
+    with open(UPDATE_FILE_PATH, 'w') as file:
+        file.write(date)
+        logger.info(f"Saved new updated date to file: {last_updated_date}")
+
+# Function to fetch the updated date from the website
+def fetch_updated_date():
+    try:
+        response = requests.get(DECK_LIST_URL)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Search for the <time> element with any class that might contain the updated date
+        date_element = soup.find('time', class_='ct-meta-element-date')
+        
+        if date_element:
+            updated_date = date_element.get_text(strip=True)
+            return updated_date
+        else:
+            print("Não foi possível encontrar o elemento de data atualizado.")
+            return None
+    except Exception as e:
+        print(f"Erro ao buscar a data atualizada: {e}")
+        return None
+
+# Function to check if the tier list is updated and notify users
+async def check_for_update(context: CallbackContext):
+    global last_updated_date
+    current_date = fetch_updated_date()
+
+    if current_date is not None:
+        if last_updated_date is None:
+            save_last_updated_date(current_date)
+        elif current_date != last_updated_date:
+            logger.info(f"Tier list updated! New date: {current_date}")
+            save_last_updated_date(current_date)
+
+            # Create an inline button that links to the updated tier list
+            keyboard = [[InlineKeyboardButton("Confira a nova lista de níveis", url=DECK_LIST_URL)]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+
+            # Notify all users whose chat IDs are persisted
+            if chat_ids:
+                logger.info(f"Notifying {len(chat_ids)} chat(s)")
+
+                for chat_id in chat_ids:
+                    try:
+                        await context.bot.send_message(
+                            chat_id=chat_id,
+                            text="A nova lista de níveis foi atualizada!",
+                            reply_markup=reply_markup
+                        )
+                        logger.info(f"Message sent to chat {chat_id}")
+                    except Exception as e:
+                        logger.error(f"Failed to send message to chat {chat_id}: {e}")
+            else:
+                logger.warning("No chats to notify.")
+        else:
+            logger.info(f"No update detected. Last updated date is still: {last_updated_date}")
+    else:
+        logger.error("Failed to fetch updated date.")
+
+# Function to fetch deck list and create inline keyboard
+def get_decks_keyboard():
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0'
+    }
+    response = requests.get(DECK_LIST_URL, headers=headers)
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        tables = soup.find_all('table')
+
+        if tables:
+            table = tables[0]
+            keyboard = []
+
+            for row in table.find_all('tr')[1:]:
+                columns = row.find_all('td')
+
+                if len(columns) == 2:
+                    tier = columns[0].text.strip()
+                    deck_name = columns[1].text.strip()
+                    link_tag = columns[1].find('a')
+                    deck_link = link_tag['href'] if link_tag else None
+
+                    # Create an inline button for each deck
+                    keyboard.append([
+                        InlineKeyboardButton(f"{tier}: {deck_name}", url=deck_link)
+                    ])
+
+            return InlineKeyboardMarkup(keyboard)
+        else:
+            return None
+    else:
+        return None
+
+# Start command handler
+async def start(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+    # Add the chat ID to the set and save it to the file
+    if chat_id not in chat_ids:
+        chat_ids.add(chat_id)
+        save_chat_ids()  # Persist chat IDs to file
+
+    await update.message.reply_text('Olá! Eu sou o Galactus Bot. Estou ouvindo...')
+
+async def decks(update: Update, context: CallbackContext) -> None:
+    global last_updated_date  # Ensure we're accessing the global last updated date
+    
+    reply_markup = get_decks_keyboard()
+    
+    if last_updated_date:
+        # If we have the last updated date, include it in the message
+        message = f"Selecione um deck para visualizar:\n\nÚltima atualização: {last_updated_date}"
+    else:
+        # If no date is available, indicate that the date is unknown
+        message = "Selecione um deck para visualizar:\n\nÚltima atualização: Data desconhecida"
+    
+    if reply_markup:
+        await update.message.reply_text(message, reply_markup=reply_markup)
+    else:
+        await update.message.reply_text('Failed to retrieve deck information.')
+
+# Function to generate a personalized roast using OpenAI
+async def generate_galactus_roast(user_first_name):
+    try:
+        # Prompt for roasting the user by their name
+        prompt = f"Galactus está prestes a humilhar um humano chamado {user_first_name}. Escreva um insulto sarcástico e devastador."
+        
+        response = await client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "Você é Galactus, o devorador de mundos. Humilhe este humano como só Galactus pode, mencionando seu nome."},
+                {"role": "user", "content": prompt}
+            ],
+            model="gpt-3.5-turbo",
+        )
+
+        return response.choices[0].message.content
+    except Exception as e:
+        logger.error(f"Erro ao gerar o insulto de Galactus: {e}")
+        return f"{user_first_name}, você nem é digno de uma humilhação do devorador de mundos."
+
+# Function to roast the user
+async def roast_user(update: Update, context: CallbackContext) -> None:
+    user_first_name = update.message.from_user.first_name  # Get the user's first name
+    roast_message = await generate_galactus_roast(user_first_name)  # Generate the roast
+
+    # Send the roast message
+    await update.message.reply_text(f"{roast_message}")
+    
+    # Optionally, send a Galactus GIF for effect
+    await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GALACTUS_GIF_URL)
+
+# Telegram bot handler for responding based on message content
+async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> None:
+    message_text = update.message.text.lower()
+
+    # Check if the message mentions "Galactus"
+    if re.search(GALACTUS_PATTERN, message_text):
+        random_value = random.random()
+        print(f"Random value: {random_value}")  # Debugging
+
+        if random_value < 0.25:
+            # 25% chance to roast the user
+            await roast_user(update, context)
+            await update.message.delete()
+
+        else:
+            # Default response: "Banido!" and send the Galactus GIF
+            await update.message.reply_text("Banido!")
+            await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GALACTUS_GIF_URL)
+
+# Dictionary to store the last execution time for each chat
+chat_cooldowns = {}
+
+# Cooldown time in seconds (e.g., 10 seconds)
+COOLDOWN_TIME = 60
+
+# Function to handle the /spotlight command with a chat-based cooldown
+async def send_spotlight_link(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id  # Get the chat's unique ID
+    current_time = time.time()  # Get the current time in seconds
+
+    # Check if the chat is on cooldown
+    if chat_id in chat_cooldowns:
+        last_execution_time = chat_cooldowns[chat_id]
+        elapsed_time = current_time - last_execution_time
+
+        if elapsed_time < COOLDOWN_TIME:
+            # Cooldown still active, inform the user
+            remaining_time = COOLDOWN_TIME - elapsed_time
+            #await update.message.reply_text(f"The command is on cooldown in this chat. Please wait {int(remaining_time)}>
+            return
+
+    # Update the chat's last execution time
+    chat_cooldowns[chat_id] = current_time
+
+    # Create an inline keyboard with a button linking to the spotlight caches page
+    keyboard = [
+        [InlineKeyboardButton("Baús de Destaque", url="https://marvelsnapzone.com/spotlight-caches/")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Send the message with the inline keyboard button
+    await update.message.reply_text("Clique no botão abaixo para ver os próximos baús de destaque:", reply_markup=reply_markup)
+
+# Main function to start the bot
+def main():
+    print("Starting bot...")
+
+    # Create the application
+    application = Application.builder().token(os.getenv("BOT_TOKEN")).build()
+
+    # Load the last known updated date from file
+    load_last_updated_date()
+
+    # Load chat IDs from file
+    load_chat_ids()
+
+    # Command handlers
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("decks", decks))
+    application.add_handler(CommandHandler("spotlight", send_spotlight_link))
+
+    # Message handler for 'Galactus' keyword
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, daily_curse_by_galactus))
+
+    # Run the periodic task every 30 minutes to check for tier list updates
+    job_queue = application.job_queue
+    job_queue.run_repeating(check_for_update, interval=1800, first=10)
+
+    # Start the bot
+    application.run_polling()
+    print("Bot is polling...")
+
+if __name__ == '__main__':
+    main()
