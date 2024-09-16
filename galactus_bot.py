@@ -371,6 +371,45 @@ async def welcome_user(update: Update, context: CallbackContext) -> None:
             animation=GALACTUS_WELCOME_GIF_URL
         )
 
+# Function to generate the farewell message using OpenAI
+async def generate_galactus_farewell(user_first_name):
+    try:
+        # Create the prompt for Galactus-style farewell message
+        prompt = f"Galactus está prestes a se despedir de um humano chamado {user_first_name}, que acabou de sair de um grupo. Escreva uma mensagem sarcástica e devastadora de despedida."
+
+        response = await client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "Você é Galactus, o devorador de mundos. Despeça-se dos humanos que deixam o grupo de uma forma poderosa e sarcástica."},
+                {"role": "user", "content": prompt}
+            ],
+            model="gpt-3.5-turbo",
+        )
+
+        return response.choices[0].message.content
+    except Exception as e:
+        logger.error(f"Erro ao gerar a mensagem de despedida do Galactus: {e}")
+        return f"{user_first_name}, você acha que pode escapar da ira de Galactus? Insignificante!"
+
+# Function to handle when a user leaves the group
+async def user_left_group(update: Update, context: CallbackContext) -> None:
+    # Get the name of the user who left
+    user_first_name = update.message.left_chat_member.first_name
+
+    # Generate the farewell message using OpenAI
+    farewell_message = await generate_galactus_farewell(user_first_name)
+
+    # Send the farewell message to the group
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=farewell_message
+    )
+
+    # Optionally, send a Galactus GIF for effect
+    await context.bot.send_animation(
+        chat_id=update.effective_chat.id,
+        animation=GALACTUS_GIF_URL
+    )
+
 # Main function to start the bot
 def main():
     print("Starting bot...")
@@ -391,6 +430,9 @@ def main():
 
     # Handler for welcoming new users
     application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome_user))
+
+    # Add a handler for users leaving the group
+    application.add_handler(MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, user_left_group))
 
     # Message handler for 'Galactus' keyword
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, daily_curse_by_galactus))
