@@ -36,6 +36,8 @@ DECK_LIST_URL = 'https://marvelsnapzone.com/tier-list/'
 UPDATE_FILE_PATH = '/app/data/last_update.txt'  # Make sure this matches the volume mount path
 CHAT_IDS_FILE_PATH = '/app/data/chat_ids.txt'  # File to store chat IDs
 GALACTUS_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2Z4amt5dTVlYWEycmZ4bjJ1MzIwemViOTBlcGN1eXVkMXcxcXZzbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7QL0aLRbHtAyc/giphy.gif"
+GALACTUS_WELCOME_GIF_URL= "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTQwb2dzejFrejhyMjc4NWh1OThtMW1vOGxvMzVwd3NtOXo2YWZhMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT1XGCiATaxXxW7pp6/giphy-downsized-large.gif"
+
 
 GROUP_RULES = """
 Proibido:
@@ -330,11 +332,11 @@ async def send_spotlight_link(update: Update, context: CallbackContext) -> None:
 # Function to generate the welcome message using OpenAI
 async def generate_galactus_welcome(user_first_name):
     try:
-        prompt = f"Galactus está prestes a receber um novo humano no grupo. O nome do humano é {user_first_name}. Dê boas-vindas a ele, mas de forma intimidadora e poderosa, como só Galactus poderia fazer. Não se esqueça de mencioná-lo pelo nome."
+        prompt = f"Galactus está prestes a receber um novo humano no grupo de jogadores de Marvel Snap. O nome do humano é {user_first_name}. Dê boas-vindas a ele, mas de forma amigável e poderosa, como só Galactus poderia fazer. Não se esqueça de mencioná-lo pelo nome."
         
         response = await client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "Você é Galactus, o devorador de mundos. Dê boas-vindas aos novos humanos que entram no grupo de uma forma poderosa e intimidadora."},
+                {"role": "system", "content": "Você é Galactus, o devorador de mundos. Dê boas-vindas aos novos humanos que entram no grupo de uma forma poderosa e amigável."},
                 {"role": "user", "content": prompt}
             ],
             model="gpt-3.5-turbo",
@@ -366,7 +368,7 @@ async def welcome_user(update: Update, context: CallbackContext) -> None:
         # Optionally, send a Galactus GIF for added effect
         await context.bot.send_animation(
             chat_id=update.effective_chat.id, 
-            animation=GALACTUS_GIF_URL
+            animation=GALACTUS_WELCOME_GIF_URL
         )
 
 # Main function to start the bot
