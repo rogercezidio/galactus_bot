@@ -13,8 +13,8 @@ This is a Telegram bot powered by Python, OpenAI, and Docker. The bot provides f
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-repository-url.git
-cd your-repository
+git clone https://github.com/rogercezidio/galactus_bot.git
+cd galactus_bot
 ```
 
 ### 2. Environment Configuration
@@ -33,7 +33,7 @@ Create two `.env` files: one for development and one for production.
     OPENAI_API_KEY=your-production-openai-api-key
     ```
 
-Also
+Also create a `.env` with the same content of `.env.prod`
 
 Ensure your `.env` files are in the root of the project directory and **do not commit them** to version control (add them to `.gitignore`).
 
