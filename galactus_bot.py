@@ -26,10 +26,27 @@ if TOKEN is None:
     print("Error: BOT_TOKEN environment variable is not set.")
     exit(1)
 
+# Dictionary to store the last execution time for each chat
+chat_cooldowns = {}
+
+# Cooldown time in seconds (e.g., 10 seconds)
+COOLDOWN_TIME = 60
+
 DECK_LIST_URL = 'https://marvelsnapzone.com/tier-list/'
 UPDATE_FILE_PATH = '/app/data/last_update.txt'  # Make sure this matches the volume mount path
 CHAT_IDS_FILE_PATH = '/app/data/chat_ids.txt'  # File to store chat IDs
 GALACTUS_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2Z4amt5dTVlYWEycmZ4bjJ1MzIwemViOTBlcGN1eXVkMXcxcXZzbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7QL0aLRbHtAyc/giphy.gif"
+
+GROUP_RULES = """
+Proibido:
+1 - Ofensas a pessoas e/ou opiniões.
+2 - Pornografias.
+3 - Política, religião ou assuntos q não levem a lugar algum (direita vs. esquerda tb).
+4 - Spoilers.
+5 - Pirataria.
+6 - Pirâmides financeiras ou afins.
+"""
+
 GALACTUS_PATTERN = re.compile(r'''
     \b                 # Word boundary
     (                  # Begin group
@@ -282,12 +299,6 @@ async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> N
             await update.message.reply_text("Banido!")
             await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GALACTUS_GIF_URL)
 
-# Dictionary to store the last execution time for each chat
-chat_cooldowns = {}
-
-# Cooldown time in seconds (e.g., 10 seconds)
-COOLDOWN_TIME = 60
-
 # Function to handle the /spotlight command with a chat-based cooldown
 async def send_spotlight_link(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id  # Get the chat's unique ID
@@ -316,6 +327,48 @@ async def send_spotlight_link(update: Update, context: CallbackContext) -> None:
     # Send the message with the inline keyboard button
     await update.message.reply_text("Clique no botão abaixo para ver os próximos baús de destaque:", reply_markup=reply_markup)
 
+# Function to generate the welcome message using OpenAI
+async def generate_galactus_welcome(user_first_name):
+    try:
+        prompt = f"Galactus está prestes a receber um novo humano no grupo. O nome do humano é {user_first_name}. Dê boas-vindas a ele, mas de forma intimidadora e poderosa, como só Galactus poderia fazer. Não se esqueça de mencioná-lo pelo nome."
+        
+        response = await client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "Você é Galactus, o devorador de mundos. Dê boas-vindas aos novos humanos que entram no grupo de uma forma poderosa e intimidadora."},
+                {"role": "user", "content": prompt}
+            ],
+            model="gpt-3.5-turbo",
+        )
+
+        return response.choices[0].message.content
+    except Exception as e:
+        logger.error(f"Erro ao gerar a mensagem de boas-vindas do Galactus: {e}")
+        return f"{user_first_name}, você foi notado por Galactus, o devorador de mundos. Bem-vindo, humano insignificante!"
+
+# Function to send welcome message when new members join (either by themselves or added by an admin)
+async def welcome_user(update: Update, context: CallbackContext) -> None:
+    # Iterate over all new chat members (handles cases where multiple members join)
+    for new_user in update.message.new_chat_members:
+        user_first_name = new_user.first_name
+
+        # Generate the welcome message from Galactus
+        welcome_message = await generate_galactus_welcome(user_first_name)
+
+        # Complete welcome message with group rules
+        complete_message = f"{welcome_message}\n\nAqui estão as regras do grupo:\n{GROUP_RULES}"
+
+        # Send the welcome message to the chat
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=complete_message
+        )
+    
+        # Optionally, send a Galactus GIF for added effect
+        await context.bot.send_animation(
+            chat_id=update.effective_chat.id, 
+            animation=GALACTUS_GIF_URL
+        )
+
 # Main function to start the bot
 def main():
     print("Starting bot...")
@@ -333,6 +386,9 @@ def main():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("decks", decks))
     application.add_handler(CommandHandler("spotlight", send_spotlight_link))
+
+    # Handler for welcoming new users
+    application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome_user))
 
     # Message handler for 'Galactus' keyword
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, daily_curse_by_galactus))
