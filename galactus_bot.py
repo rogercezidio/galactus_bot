@@ -53,15 +53,15 @@ GALACTUS_PATTERN = re.compile(r'''
     \b                 # Word boundary
     (                  # Begin group
         g\s*           # 'g' with optional spaces
-        [a@4áàâãäå#*]\s*  # 'a' with accented characters and creative variations
+        [a@4áàâãäå*]\s*  # 'a' with accented characters and creative variations
         l\s*           # 'l' with optional spaces
-        [a@4qáàâãäå#*]\s*    # 'a' with accented characters, '@', '4', 'q', '#' with optional spaces
+        [a@4qáàâãäå*]\s*    # 'a' with accented characters, '@', '4', 'q', '#' with optional spaces
         [cç]?\s*       # Optional 'c' or 'ç', with optional spaces (for 'galatus')
         [t7]\s*        # 't' or '7' with optional spaces
         [uúùûü*]\s*    # 'u' with accented characters or '*' with optional spaces
         [s$z]\s*       # 's', 'z', or '$' with optional spaces
         |              # OR
-        gal[a-z@4qáàâãäå#]*t[oõã]*o  # Handle variations like 'galatão', 'galaquitus', 'galatã'
+        g[a-z@4qáàâãäå#]l[a-z@4qáàâãäå#]*t[aoõã]*o  # Handle variations like 'galatão', 'galaquitus', 'galatã'
         |              # OR
         g[a4]l[a4]ctus # Handle variations like 'g4l4ctus'
         |              # OR
