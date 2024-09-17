@@ -31,13 +31,11 @@ chat_cooldowns = {}
 
 # Cooldown time in seconds (e.g., 10 seconds)
 COOLDOWN_TIME = 60
-
 DECK_LIST_URL = 'https://marvelsnapzone.com/tier-list/'
 UPDATE_FILE_PATH = '/app/data/last_update.txt'  # Make sure this matches the volume mount path
 CHAT_IDS_FILE_PATH = '/app/data/chat_ids.txt'  # File to store chat IDs
 GALACTUS_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2Z4amt5dTVlYWEycmZ4bjJ1MzIwemViOTBlcGN1eXVkMXcxcXZzbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7QL0aLRbHtAyc/giphy.gif"
 GALACTUS_WELCOME_GIF_URL= "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTQwb2dzejFrejhyMjc4NWh1OThtMW1vOGxvMzVwd3NtOXo2YWZhMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT1XGCiATaxXxW7pp6/giphy-downsized-large.gif"
-
 
 GROUP_RULES = """
 Proibido:
@@ -166,8 +164,7 @@ async def check_for_update(context: CallbackContext):
             save_last_updated_date(current_date)
 
             # Create an inline button that links to the updated tier list
-            keyboard = [[InlineKeyboardButton("Confira a nova lista de níveis", url=DECK_LIST_URL)]]
-            reply_markup = InlineKeyboardMarkup(keyboard)
+            reply_markup = get_decks_keyboard()
 
             # Notify all users whose chat IDs are persisted
             if chat_ids:
@@ -177,7 +174,7 @@ async def check_for_update(context: CallbackContext):
                     try:
                         await context.bot.send_message(
                             chat_id=chat_id,
-                            text="A nova lista de níveis foi atualizada!",
+                            text="O meta foi atualizado! Confira:",
                             reply_markup=reply_markup
                         )
                         logger.info(f"Message sent to chat {chat_id}")
