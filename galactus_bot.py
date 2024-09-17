@@ -61,31 +61,29 @@ GALACTUS_PATTERN = re.compile(r'''
         [uúùûü*]\s*    # 'u' with accented characters or '*' with optional spaces
         [s$z]\s*       # 's', 'z', or '$' with optional spaces
         |              # OR
-        g[a-z@4qáàâãäå#]l[a-z@4qáàâãäå#]*t[aoõã]*o  # Handle variations like 'galatão', 'galaquitus', 'galatã'
+        g[a-z@4qáàâãäå]l[a-z@4qáàâãäå]*t[aoõã]*o  # Handle variations like 'galatão', 'galaquitus', 'galatã'
         |              # OR
         g[a4]l[a4]ctus # Handle variations like 'g4l4ctus'
         |              # OR
         g[a4]l[a4]k[t7]us # Handle 'galaktus' variations with 'k'
         |              # OR
-        ギャラクタス           # Japanese characters for 'Galactus'
+        ギャラクタス     # Japanese characters for 'Galactus'
         |              # OR
-        갈락투스             # Korean characters for 'Galactus'
+        갈락투스         # Korean characters for 'Galactus'
         |              # OR
-        Галактус           # Cyrillic (Russian) for 'Galactus'
+        Галактус       # Cyrillic (Russian) for 'Galactus'
         |              # OR
-        جالكتوس           # Arabic for 'Galactus'
+        جالكتوس        # Arabic for 'Galactus'
         |              # OR
-        银河吞噬者           # Chinese for 'Galactus' (literally 'Galactic Devourer')
+        银河吞噬者       # Chinese for 'Galactus' (literally 'Galactic Devourer')
         |              # OR
-        गैलैक्टस           # Hindi for 'Galactus'
+        गैलैक्टस          # Hindi for 'Galactus'
         |              # OR
-        גלקטוס             # Hebrew for 'Galactus'
+        גלקטוס         # Hebrew for 'Galactus'
         |              # OR
-        galatus           # Specifically capture 'galatus'
+        galatus        # Specifically capture 'galatus'
         |              # OR
-        galaquitus         # Specifically capture 'galaquitus'
-        |              # OR
-        g[a4]lac[a4]t[oõ]*us  # More phonetic variations like 'galactous', 'galactus'
+        galaquitus     # Specifically capture 'galaquitus'
     )                  # End group
     \b                 # Word boundary
 ''', re.VERBOSE | re.IGNORECASE)
@@ -104,14 +102,17 @@ def load_chat_ids():
             chat_ids = {int(chat_id.strip()) for chat_id in ids}
             logger.info(f"Loaded {len(chat_ids)} chat ID(s) from file.")
     else:
-        logger.info("No previous chat IDs found.")
+        logger.info("No previous chat IDs found. Chat ID file does not exist.")
 
 # Function to save chat IDs to a file
 def save_chat_ids():
-    with open(CHAT_IDS_FILE_PATH, 'w') as file:
-        for chat_id in chat_ids:
-            file.write(f"{chat_id}\n")
+    try:
+        with open(CHAT_IDS_FILE_PATH, 'w') as file:
+            for chat_id in chat_ids:
+                file.write(f"{chat_id}\n")
         logger.info(f"Saved {len(chat_ids)} chat ID(s) to file.")
+    except Exception as e:
+        logger.error(f"Failed to save chat IDs: {e}")
 
 # Function to load the last updated date from a file
 def load_last_updated_date():
@@ -231,6 +232,7 @@ async def start(update: Update, context: CallbackContext) -> None:
     # Add the chat ID to the set and save it to the file
     if chat_id not in chat_ids:
         chat_ids.add(chat_id)
+        logger.info(f"New chat ID added: {chat_id}")
         save_chat_ids()  # Persist chat IDs to file
 
     await update.message.reply_text('Olá! Eu sou o Galactus Bot. Estou ouvindo...')
@@ -282,24 +284,27 @@ async def roast_user(update: Update, context: CallbackContext) -> None:
     # Optionally, send a Galactus GIF for effect
     await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GALACTUS_GIF_URL)
 
-# Telegram bot handler for responding based on message content
 async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> None:
-    message_text = update.message.text.lower()
+    # Ensure that update.message exists and has text before proceeding
+    if update.message and update.message.text:
+        message_text = update.message.text.lower()
 
-    # Check if the message mentions "Galactus"
-    if re.search(GALACTUS_PATTERN, message_text):
-        random_value = random.random()
-        print(f"Random value: {random_value}")  # Debugging
+        # Check if the message mentions "Galactus"
+        if re.search(GALACTUS_PATTERN, message_text):
+            random_value = random.random()
+            print(f"Random value: {random_value}")  # Debugging
 
-        if random_value < 0.25:
-            # 25% chance to roast the user
-            await roast_user(update, context)
-            await update.message.delete()
+            if random_value < 0.25:
+                # 25% chance to roast the user
+                await roast_user(update, context)
+                await update.message.delete()
 
-        else:
-            # Default response: "Banido!" and send the Galactus GIF
-            await update.message.reply_text("Banido!")
-            await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GALACTUS_GIF_URL)
+            else:
+                # Default response: "Banido!" and send the Galactus GIF
+                await update.message.reply_text("Banido!")
+                await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GALACTUS_GIF_URL)
+    else:
+        logger.warning("Received an update without a message or text")
 
 # Function to handle the /spotlight command with a chat-based cooldown
 async def send_spotlight_link(update: Update, context: CallbackContext) -> None:
