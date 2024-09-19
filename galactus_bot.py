@@ -8,6 +8,8 @@ import random
 import requests
 from bs4 import BeautifulSoup
 from openai import AsyncOpenAI
+from apscheduler.triggers.cron import CronTrigger
+from datetime import datetime, timedelta
 
 # Enable logging to debug if needed
 logging.basicConfig(
@@ -36,6 +38,7 @@ UPDATE_FILE_PATH = '/app/data/last_update.txt'  # Make sure this matches the vol
 CHAT_IDS_FILE_PATH = '/app/data/chat_ids.txt'  # File to store chat IDs
 GALACTUS_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2Z4amt5dTVlYWEycmZ4bjJ1MzIwemViOTBlcGN1eXVkMXcxcXZzbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7QL0aLRbHtAyc/giphy.gif"
 GALACTUS_WELCOME_GIF_URL= "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTQwb2dzejFrejhyMjc4NWh1OThtMW1vOGxvMzVwd3NtOXo2YWZhMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT1XGCiATaxXxW7pp6/giphy-downsized-large.gif"
+ROULETTE_URL = "https://pay-va.nvsgames.com/topup/262304/eg-en?tab=purchase"
 
 GROUP_RULES = """
 Proibido:
@@ -130,7 +133,6 @@ def save_last_updated_date(date):
         file.write(date)
         logger.info(f"Saved new updated date to file: {last_updated_date}")
 
-# Function to fetch the updated date from the website
 def fetch_updated_date():
     try:
         response = requests.get(DECK_LIST_URL)
@@ -138,17 +140,22 @@ def fetch_updated_date():
         
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        # Search for the <time> element with any class that might contain the updated date
-        date_element = soup.find('time', class_='ct-meta-element-date')
+        # Search for the <figcaption> element
+        figcaption_element = soup.find('figcaption')
         
-        if date_element:
-            updated_date = date_element.get_text(strip=True)
+        if figcaption_element and 'Updated:' in figcaption_element.get_text():
+            # Extract the date, which should be within the text following "Updated:"
+            updated_text = figcaption_element.get_text(strip=True)
+            
+            # The date is expected to be after "Updated:", so split and strip it
+            updated_date = updated_text.split("Updated:")[1].strip()
+            
             return updated_date
         else:
-            print("Não foi possível encontrar o elemento de data atualizado.")
+            print("Could not find the updated date element.")
             return None
     except Exception as e:
-        print(f"Erro ao buscar a data atualizada: {e}")
+        print(f"Error fetching the updated date: {e}")
         return None
 
 # Function to check if the tier list is updated and notify users
