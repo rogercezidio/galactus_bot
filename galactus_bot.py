@@ -1,15 +1,15 @@
 import os
 import re
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+import telegram  # <-- Make sure to import the telegram module
+import json
 import time
 import logging
 import random
 import requests
 from bs4 import BeautifulSoup
 from openai import AsyncOpenAI
-from apscheduler.triggers.cron import CronTrigger
-from datetime import datetime, timedelta
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, CallbackQueryHandler
 
 # Enable logging to debug if needed
 logging.basicConfig(
@@ -30,12 +30,22 @@ if TOKEN is None:
 
 # Dictionary to store the last execution time for each chat
 chat_cooldowns = {}
+# Global dictionary to track user ids based on username
+user_ids = {}
+user_data = {}
+last_updated_date = None
+# Set to store chat IDs
+chat_ids = set()
+game_state = {}
 
 # Cooldown time in seconds (e.g., 10 seconds)
 COOLDOWN_TIME = 60
+RANK_FILE_PATH = '/app/data/rankings.json'
 DECK_LIST_URL = 'https://marvelsnapzone.com/tier-list/'
 UPDATE_FILE_PATH = '/app/data/last_update.txt'  # Make sure this matches the volume mount path
 CHAT_IDS_FILE_PATH = '/app/data/chat_ids.txt'  # File to store chat IDs
+USER_IDS_FILE_PATH = '/app/data/user_ids.json'
+GAME_STATE_FILE_PATH = '/app/data/game_state.json'
 GALACTUS_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2Z4amt5dTVlYWEycmZ4bjJ1MzIwemViOTBlcGN1eXVkMXcxcXZzbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7QL0aLRbHtAyc/giphy.gif"
 GALACTUS_WELCOME_GIF_URL= "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTQwb2dzejFrejhyMjc4NWh1OThtMW1vOGxvMzVwd3NtOXo2YWZhMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT1XGCiATaxXxW7pp6/giphy-downsized-large.gif"
 ROULETTE_URL = "https://pay-va.nvsgames.com/topup/262304/eg-en?tab=purchase"
@@ -89,11 +99,6 @@ GALACTUS_PATTERN = re.compile(r'''
     \b                 # Word boundary
 ''', re.VERBOSE | re.IGNORECASE)
 
-
-last_updated_date = None
-# Set to store chat IDs
-chat_ids = set()
-
 # Function to load chat IDs from a file
 def load_chat_ids():
     global chat_ids
@@ -124,6 +129,28 @@ def load_last_updated_date():
             logger.info(f"Loaded last updated date from file: {last_updated_date}")
     else:
         logger.info("No previous update date found.")
+
+def save_game_state(game_state):
+    try:
+        with open(GAME_STATE_FILE_PATH, 'w') as file:
+            json.dump(game_state, file)
+        logger.info("Game state saved successfully.")
+    except Exception as e:
+        logger.error(f"Failed to save game state: {e}")
+
+def load_game_state():
+    try:
+        if os.path.exists(GAME_STATE_FILE_PATH):
+            with open(GAME_STATE_FILE_PATH, 'r') as file:
+                state = json.load(file)
+                logger.info(f"Game state loaded: {state}")
+                return state
+        else:
+            logger.info("No previous game state found.")
+            return {}
+    except Exception as e:
+        logger.error(f"Failed to load game state: {e}")
+        return {}
 
 # Function to save the updated date to a file
 def save_last_updated_date(date):
@@ -238,6 +265,16 @@ async def start(update: Update, context: CallbackContext) -> None:
         chat_ids.add(chat_id)
         logger.info(f"New chat ID added: {chat_id}")
         save_chat_ids()  # Persist chat IDs to file
+
+    user = update.message.from_user
+    user_id = user.id
+    username = user.username
+
+    # Save the user ID if it is not already saved
+    if username not in user_ids:
+        user_ids[username] = user_id
+        logger.info(f"New user registered: {username} with ID: {user_id}")
+        save_user_ids()
 
     await update.message.reply_text('Olá! Eu sou o Galactus Bot. Estou ouvindo...')
 
@@ -419,12 +456,421 @@ async def user_left_group(update: Update, context: CallbackContext) -> None:
         animation=GALACTUS_GIF_URL
     )
 
+# Function to load user IDs from a file
+def load_user_ids():
+    global user_ids
+    if os.path.exists(USER_IDS_FILE_PATH):
+        try:
+            with open(USER_IDS_FILE_PATH, 'r') as file:
+                file_content = file.read().strip()
+                if file_content:  # Only load if file is not empty
+                    user_ids = json.loads(file_content)
+                    logger.info(f"Loaded {len(user_ids)} user ID(s) from file.")
+                else:
+                    logger.warning("User ID file is empty. Initializing with an empty dictionary.")
+                    user_ids = {}
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to decode JSON from file {USER_IDS_FILE_PATH}: {e}")
+            user_ids = {}
+    else:
+        logger.info("No previous user IDs found. User ID file does not exist.")
+        user_ids = {}
+
+# Function to save user IDs to a file
+def save_user_ids():
+    try:
+        if user_ids:  # Check if the dictionary has any data
+            with open(USER_IDS_FILE_PATH, 'w') as file:
+                json.dump(user_ids, file, indent=4)
+            logger.info(f"Saved {len(user_ids)} user ID(s) to file: {user_ids}")
+        else:
+            logger.warning("No user IDs to save.")
+    except Exception as e:
+        logger.error(f"Failed to save user IDs: {e}")
+
+# Load user IDs from a file (should be called in the bot startup)
+def load_user_ids():
+    global user_ids
+    try:
+        with open('/app/data/user_ids.json', 'r') as file:
+            user_ids = json.load(file)
+            logger.info(f"Loaded {len(user_ids)} user IDs from file.")
+    except FileNotFoundError:
+        logger.info("User ID file not found, starting fresh.")
+    except json.JSONDecodeError:
+        logger.error("Error decoding JSON from user ID file, starting fresh.")
+        user_ids = {}
+
+# Save user IDs to a file
+def save_user_ids():
+    try:
+        with open('/app/data/user_ids.json', 'w') as file:
+            json.dump(user_ids, file)
+            logger.info(f"Saved {len(user_ids)} user IDs to file.")
+    except Exception as e:
+        logger.error(f"Failed to save user IDs: {e}")
+
+# Function to start a new Top Trumps game
+async def start_top_trumps_game(update: Update, context: CallbackContext) -> None:
+    global game_state
+    
+    user1_username = context.args[0].lstrip('@')
+    user2_username = context.args[1].lstrip('@')
+    
+    # Verifique se ambos os usernames são iguais e corrija se necessário
+    if user1_username == user2_username:
+        user2_username = user1_username  # Ambos os usernames são iguais
+
+    user1_id = user_ids.get(user1_username)
+    user2_id = user_ids.get(user2_username)
+
+    if user1_id is None or user2_id is None:
+        await update.message.reply_text(f"Não foi possível encontrar o usuário @{user1_username}. Verifique o nome de usuário e tente novamente.")
+        return
+
+    # Captura o ID do chat do grupo diretamente do update
+    group_chat_id = update.effective_chat.id
+    logger.info(f"Starting Top Trumps game in group chat ID: {group_chat_id}")
+
+    # Inicializa o estado do jogo com todas as chaves necessárias
+    game_state = {
+        "group_chat_id": group_chat_id,
+        "user1": {"id": user1_id, "username": user1_username, "card": None, "score": 0},
+        "user2": {"id": user2_id, "username": user2_username, "card": None, "score": 0},
+        "round": 1,
+        "multiplier": 1,  # Start with a 1x multiplier
+        "user1_snap": False,
+        "user2_snap": False
+    }
+
+    logger.info(f"Initial game state: {game_state}")
+
+    # Mensagem de início de partida para o grupo
+    start_message = (
+        f"🎮 *A partida de Top Trumps começou!*\n\n"
+        f"*{user1_username}* vs *{user2_username}*\n\n"
+        f"Cada jogador deve escolher um atributo para competir. Que o melhor vença! 💪"
+    )
+    await context.bot.send_message(
+        chat_id=group_chat_id,
+        text=start_message,
+        parse_mode='Markdown'
+    )
+
+    # Salva o estado inicial do jogo
+    save_game_state(game_state)
+
+    # Inicia o jogo
+    await initiate_top_trumps_game(user1_id, user2_id, user1_username, user2_username, update, context)
+
+# Function to initiate a round of Top Trumps
+async def initiate_top_trumps_game(user1_id, user2_id, user1_username, user2_username, update, context):
+    game_state = load_game_state()
+    group_chat_id = game_state.get("group_chat_id")  # Usa o ID do grupo armazenado no game_state
+
+    # Verifique se o game_state tem as chaves necessárias
+    if "user1" not in game_state or "user2" not in game_state:
+        logger.error("game_state is missing keys for user1 or user2")
+        return
+
+    # Sorteia cartas e armazena no estado do jogo
+    user1_card = draw_card()
+    user2_card = draw_card()
+    
+    # Atualiza o estado do jogo com as cartas sorteadas
+    game_state["user1"]["card"] = user1_card
+    game_state["user2"]["card"] = user2_card
+    
+    # Reset round states but keep the multiplier if it's already set
+    if game_state["round"] == 1:
+        game_state["multiplier"] = 1  # Reset multiplier only at the start of the game
+    game_state["user1_snap"] = False
+    game_state["user2_snap"] = False
+    
+    # Salva o estado do jogo com as cartas atualizadas
+    save_game_state(game_state)
+
+    # Formatação melhorada da mensagem
+    message_text = (
+        f"🎮 *Rodada {game_state['round']}*\n\n"
+        f"✨ *{user1_username}*, você recebeu: *{user1_card['name']}*!\n\n"
+        f"💪 **Força**: *{user1_card['força']}*\n"
+        f"🧠 **Inteligência**: *{user1_card['inteligência']}*\n"
+        f"🛡️ **Defesa**: *{user1_card['defesa']}*\n"
+        f"⚡ **Velocidade**: *{user1_card['velocidade']}*\n\n"
+        f"Escolha uma categoria para jogar contra *{user2_username}*:\n\n"
+        f"🪙 *Pontos atuais*: {game_state['user1']['score']} vs {game_state['user2']['score']}\n"
+    )
+
+    # Cria botões para o user1 selecionar um atributo, com emojis para destacar, e adicionar a opção de Snap
+    keyboard = [
+        [InlineKeyboardButton("💪 Força", callback_data=f"força|{user1_id}|{user2_id}|{group_chat_id}")],
+        [InlineKeyboardButton("🧠 Inteligência", callback_data=f"inteligência|{user1_id}|{user2_id}|{group_chat_id}")],
+        [InlineKeyboardButton("🛡️ Defesa", callback_data=f"defesa|{user1_id}|{user2_id}|{group_chat_id}")],
+        [InlineKeyboardButton("⚡ Velocidade", callback_data=f"velocidade|{user1_id}|{user2_id}|{group_chat_id}")],
+        [InlineKeyboardButton("🔥 Snap", callback_data=f"snap|{user1_id}|{user2_id}|{group_chat_id}")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Envia os detalhes da carta e os botões inline para o user1 no chat privado
+    await context.bot.send_message(
+        chat_id=user1_id, 
+        text=message_text,
+        reply_markup=reply_markup,
+        parse_mode='Markdown'
+    )
+
+# Function to handle attribute choice
+async def handle_attribute_choice(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    await query.answer()
+    
+    # Carrega o estado do jogo
+    game_state = load_game_state()
+
+    # Verifique se o game_state tem as chaves necessárias
+    if "user1" not in game_state or "user2" not in game_state:
+        logger.error("game_state is missing keys for user1 or user2")
+        return
+
+    # Extrai o ID do chat do grupo e outras informações do jogo
+    group_chat_id = game_state.get("group_chat_id")
+    round_number = game_state.get("round", 1)
+
+    # Divide os dados do callback para extrair o atributo selecionado e IDs dos jogadores
+    data = query.data.split("|")
+    action = data[0]
+
+    if action == "snap":
+        user_id = int(data[1])
+        if game_state["user1"]["id"] == user_id and not game_state.get("user1_has_snapped", False):
+            game_state["user1_has_snapped"] = True
+            game_state["multiplier"] *= 2
+            await context.bot.send_message(chat_id=group_chat_id, text=f"{game_state['user1']['username']} usou Snap! Os pontos agora valem {game_state['multiplier']}x.")
+        elif game_state["user2"]["id"] == user_id and not game_state.get("user2_has_snapped", False):
+            game_state["user2_has_snapped"] = True
+            game_state["multiplier"] *= 2
+            await context.bot.send_message(chat_id=group_chat_id, text=f"{game_state['user2']['username']} usou Snap! Os pontos agora valem {game_state['multiplier']}x.")
+        else:
+            await query.message.reply_text("Você já usou Snap ou não é sua vez.")
+        save_game_state(game_state)
+        return  # End processing after a snap action
+
+    # Handle normal attribute selection here
+    attribute = action
+    user1_id = int(data[1])
+    user2_id = int(data[2])
+
+    # Recupera as cartas dos jogadores
+    user1_card = game_state["user1"]["card"]
+    user2_card = game_state["user2"]["card"]
+
+    # Determina o valor do atributo para ambos os jogadores
+    user1_value = user1_card[attribute]
+    user2_value = user2_card[attribute]
+
+    # Determina o vencedor da rodada e atualiza a pontuação
+    if user1_value > user2_value:
+        result_message = (
+            f"🏆 *{game_state['user1']['username']} venceu a rodada!*\n\n"
+            f"🔍 *Atributo Escolhido:* {attribute.capitalize()}\n\n"
+            f"🃏 *Carta de {game_state['user1']['username']}:* {user1_card['name']} | *{attribute.capitalize()}:* {user1_value}\n"
+            f"🃏 *Carta de {game_state['user2']['username']}:* {user2_card['name']} | *{attribute.capitalize()}:* {user2_value}\n"
+        )
+        game_state["user1"]["score"] += game_state["multiplier"]  # Incrementa a pontuação do user1
+    elif user1_value < user2_value:
+        result_message = (
+            f"🏆 *{game_state['user2']['username']} venceu a rodada!*\n\n"
+            f"🔍 *Atributo Escolhido:* {attribute.capitalize()}\n\n"
+            f"🃏 *Carta de {game_state['user2']['username']}:* {user2_card['name']} | *{attribute.capitalize()}:* {user2_value}\n"
+            f"🃏 *Carta de {game_state['user1']['username']}:* {user1_card['name']} | *{attribute.capitalize()}:* {user1_value}\n"
+        )
+        game_state["user2"]["score"] += game_state["multiplier"]  # Incrementa a pontuação do user2
+    else:
+        result_message = (
+            f"🤝 *Empate na rodada!*\n\n"
+            f"🔍 *Atributo Escolhido:* {attribute.capitalize()}\n\n"
+            f"🃏 *Carta de {game_state['user1']['username']}:* {user1_card['name']} | *{attribute.capitalize()}:* {user1_value}\n"
+            f"🃏 *Carta de {game_state['user2']['username']}:* {user2_card['name']} | *{attribute.capitalize()}:* {user2_value}\n"
+        )
+
+    # Envia o resultado da rodada para o grupo
+    await context.bot.send_message(
+        chat_id=group_chat_id,
+        text=result_message,
+        parse_mode='Markdown'
+    )
+
+    # Verifica se o número máximo de rodadas foi atingido
+    if round_number >= 5:
+        user1_score = game_state["user1"]["score"]
+        user2_score = game_state["user2"]["score"]
+
+        if user1_score > user2_score:
+            await end_game(update, context, winner_id=game_state['user1']['id'], winner_username=game_state['user1']['username'])
+        elif user2_score > user1_score:
+            await end_game(update, context, winner_id=game_state['user2']['id'], winner_username=game_state['user2']['username'])
+        else:
+            await context.bot.send_message(
+                chat_id=group_chat_id,
+                text=f"🤝 *O jogo terminou em empate, ambos os jogadores têm {user1_score} pontos!*",
+                parse_mode='Markdown'
+            )
+            game_state = {}
+            save_game_state(game_state)
+    else:
+        # Incrementa o número da rodada
+        game_state["round"] += 1
+        save_game_state(game_state)
+
+        # Inicia a próxima rodada
+        await initiate_top_trumps_game(
+            game_state['user1']['id'], 
+            game_state['user2']['id'], 
+            game_state['user1']['username'], 
+            game_state['user2']['username'], 
+            update, 
+            context
+        )
+
+def draw_card():
+    # Example card data structure
+    cards = [
+        {"name": "Capitão América", "força": 70, "inteligência": 70, "defesa": 90, "velocidade": 65},
+        {"name": "Homem de Ferro", "força": 80, "inteligência": 90, "defesa": 80, "velocidade": 75},
+        {"name": "Thor", "força": 95, "inteligência": 60, "defesa": 85, "velocidade": 70},
+        {"name": "Viúva Negra", "força": 60, "inteligência": 85, "defesa": 50, "velocidade": 80},
+        {"name": "Hulk", "força": 100, "inteligência": 40, "defesa": 100, "velocidade": 50},
+        # Add more cards as needed
+    ]
+    
+    # Randomly select and return a card
+    return random.choice(cards)
+
+# Load or initialize the rank data
+def load_rankings():
+    if os.path.exists(RANK_FILE_PATH):
+        with open(RANK_FILE_PATH, 'r') as file:
+            return json.load(file)
+    return {}
+
+def save_rankings(rankings):
+    with open(RANK_FILE_PATH, 'w') as file:
+        json.dump(rankings, file, indent=4)  # Add indent for better readability in the file
+
+def update_rankings(winner_id, loser_id, winner_points):
+    # Load the current rankings
+    rankings = load_rankings()
+    
+    # Ensure the winner is initialized in the rankings
+    if winner_id not in rankings:
+        rankings[winner_id] = 0
+    
+    # Accumulate the points
+    rankings[winner_id] += winner_points
+    
+    # Debug: Print out the rankings before saving
+    print(f"Updated Rankings: {rankings}")
+
+    # Save the updated rankings
+    save_rankings(rankings)
+
+# Command to display the current rankings
+async def rank(update: Update, context: CallbackContext) -> None:
+    rankings = load_rankings()
+    
+    if not rankings:
+        await update.message.reply_text("Ainda não há classificações disponíveis.")
+        return
+
+    # Sort the rankings by score in descending order
+    sorted_rankings = sorted(rankings.items(), key=lambda item: item[1], reverse=True)
+    
+    # Generate the rank message
+    rank_message = "🏆 *Classificação Atual*\n\n"
+    for i, (user_id, score) in enumerate(sorted_rankings, start=1):
+        user = await context.bot.get_chat(user_id)
+        rank_message += f"{i}. {user.first_name} - {score} ponto(s)\n"
+    
+    await update.message.reply_text(rank_message, parse_mode='Markdown')
+
+# Command to reset the rankings (admin only)
+async def reset_rank(update: Update, context: CallbackContext) -> None:
+    if update.effective_user.id in context.bot_data.get('admins', []):
+        save_rankings({})
+        await update.message.reply_text("Classificações foram redefinidas.")
+    else:
+        await update.message.reply_text("Você não tem permissão para redefinir as classificações.")
+
+# Command to Snap
+async def snap(update: Update, context: CallbackContext) -> None:
+    game_state = load_game_state()
+    user_id = update.message.from_user.id
+    
+    if game_state["user1"]["id"] == user_id and not game_state["user1_snap"]:
+        game_state["user1_snap"] = True
+        game_state["multiplier"] *= 2
+        await update.message.reply_text(f"{game_state['user1']['username']} usou Snap! Os pontos agora valem {game_state['multiplier']}x.")
+    elif game_state["user2"]["id"] == user_id and not game_state["user2_snap"]:
+        game_state["user2_snap"] = True
+        game_state["multiplier"] *= 2
+        await update.message.reply_text(f"{game_state['user2']['username']} usou Snap! Os pontos agora valem {game_state['multiplier']}x.")
+    else:
+        await update.message.reply_text("Você já usou Snap ou não é sua vez.")
+    
+    save_game_state(game_state)
+
+# Command to Run
+async def run(update: Update, context: CallbackContext) -> None:
+    game_state = load_game_state()
+    user_id = update.message.from_user.id
+    
+    if game_state["user1"]["id"] == user_id:
+        await end_game(update, context, winner_id=game_state["user2"]["id"], winner_username=game_state['user2']['username'], reason="O adversário fugiu")
+    elif game_state["user2"]["id"] == user_id:
+        await end_game(update, context, winner_id=game_state["user1"]["id"], winner_username=game_state['user1']['username'], reason="O adversário fugiu")
+    else:
+        await update.message.reply_text("Você não está jogando.")
+
+# Function to end the game
+async def end_game(update: Update, context: CallbackContext, winner_id, winner_username, reason="") -> None:
+    game_state = load_game_state()
+    user1_score = game_state["user1"]["score"]
+    user2_score = game_state["user2"]["score"]
+
+    if reason:
+        final_message = f"🏃 *{reason}*\n\n"
+    else:
+        final_message = ""
+    
+    if winner_id == game_state['user1']['id']:
+        final_message += f"🎉 *O jogo terminou! {winner_username} é o grande vencedor com {user1_score} pontos!*"
+        update_rankings(winner_id, game_state['user2']['id'], user1_score)
+    else:
+        final_message += f"🎉 *O jogo terminou! {winner_username} é o grande vencedor com {user2_score} pontos!*"
+        update_rankings(winner_id, game_state['user1']['id'], user2_score)
+
+    await context.bot.send_message(
+        chat_id=game_state["group_chat_id"],
+        text=final_message,
+        parse_mode='Markdown'
+    )
+    
+    # Finalize the game by resetting the game state
+    game_state = {}
+    save_game_state(game_state)
+
+# Make sure to update the score after each Top Trumps game
+def update_score_after_game():
+    # After determining the winner and loser
+    winner_id = game_state['user1']['id'] if game_state['user1']['score'] > game_state['user2']['score'] else game_state['user2']['id']
+    loser_id = game_state['user1']['id'] if winner_id == game_state['user2']['id'] else game_state['user2']['id']
+    
+    update_rankings(winner_id, loser_id)
+
 # Main function to start the bot
 def main():
     print("Starting bot...")
-
-    # Create the application
-    application = Application.builder().token(os.getenv("BOT_TOKEN")).build()
 
     # Load the last known updated date from file
     load_last_updated_date()
@@ -432,10 +878,19 @@ def main():
     # Load chat IDs from file
     load_chat_ids()
 
+    # Load the user IDs from file
+    load_user_ids()
+
+    # Create the application
+    application = Application.builder().token(os.getenv("BOT_TOKEN")).build()
+
     # Command handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("decks", decks))
     application.add_handler(CommandHandler("spotlight", send_spotlight_link))
+    application.add_handler(CommandHandler("rank", rank))
+    application.add_handler(CommandHandler("reset_rank", reset_rank))
+    application.add_handler(CommandHandler("toptrumps", start_top_trumps_game))
 
     # Handler for welcoming new users
     application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome_user))
@@ -445,6 +900,9 @@ def main():
 
     # Message handler for 'Galactus' keyword
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, daily_curse_by_galactus))
+
+    # Add a handler for attribute choice in Top Trumps
+    application.add_handler(CallbackQueryHandler(handle_attribute_choice))
 
     # Run the periodic task every 30 minutes to check for tier list updates
     job_queue = application.job_queue
