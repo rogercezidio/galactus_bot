@@ -99,6 +99,76 @@ GALACTUS_PATTERN = re.compile(r'''
     \b                 # Word boundary
 ''', re.VERBOSE | re.IGNORECASE)
 
+pool1 = [
+    {"name": "Capitão América", "força": 70, "inteligência": 65, "defesa": 75, "velocidade": 50},
+    {"name": "Hulk", "força": 100, "inteligência": 40, "defesa": 95, "velocidade": 40},
+    {"name": "Viúva Negra", "força": 50, "inteligência": 85, "defesa": 50, "velocidade": 60},
+    {"name": "Doutor Estranho", "força": 60, "inteligência": 95, "defesa": 65, "velocidade": 70},
+    {"name": "Homem-Aranha", "força": 75, "inteligência": 80, "defesa": 70, "velocidade": 80},
+    {"name": "Wolverine", "força": 80, "inteligência": 60, "defesa": 90, "velocidade": 60},
+    {"name": "Pantera Negra", "força": 75, "inteligência": 85, "defesa": 80, "velocidade": 65},
+    {"name": "Magneto", "força": 85, "inteligência": 90, "defesa": 85, "velocidade": 60},
+    {"name": "Fênix (Jean Grey)", "força": 100, "inteligência": 95, "defesa": 95, "velocidade": 80},
+    {"name": "Ciclope", "força": 70, "inteligência": 70, "defesa": 65, "velocidade": 55},
+    {"name": "Visão", "força": 85, "inteligência": 85, "defesa": 90, "velocidade": 80},
+    {"name": "Capitã Marvel", "força": 100, "inteligência": 80, "defesa": 95, "velocidade": 85},
+    {"name": "Luke Cage", "força": 85, "inteligência": 60, "defesa": 90, "velocidade": 50},
+    {"name": "Jessica Jones", "força": 70, "inteligência": 60, "defesa": 75, "velocidade": 55},
+    {"name": "Gamora", "força": 75, "inteligência": 70, "defesa": 80, "velocidade": 70},
+    {"name": "Rocket Raccoon", "força": 40, "inteligência": 85, "defesa": 50, "velocidade": 60},
+    {"name": "Drax", "força": 85, "inteligência": 50, "defesa": 85, "velocidade": 45},
+    {"name": "Mantis", "força": 45, "inteligência": 80, "defesa": 50, "velocidade": 55},
+    {"name": "Loki", "força": 80, "inteligência": 85, "defesa": 75, "velocidade": 65},
+    {"name": "Ultron", "força": 95, "inteligência": 95, "defesa": 90, "velocidade": 70},
+    {"name": "Noturno", "força": 65, "inteligência": 70, "defesa": 60, "velocidade": 85},
+    {"name": "Vampira", "força": 80, "inteligência": 65, "defesa": 85, "velocidade": 75},
+    {"name": "Mística", "força": 65, "inteligência": 80, "defesa": 65, "velocidade": 70},
+    {"name": "Namor", "força": 90, "inteligência": 70, "defesa": 85, "velocidade": 80},
+    {"name": "Surfista Prateado", "força": 95, "inteligência": 85, "defesa": 90, "velocidade": 100},
+    {"name": "Máquina de Combate", "força": 85, "inteligência": 85, "defesa": 85, "velocidade": 60},
+    {"name": "Shang-Chi", "força": 65, "inteligência": 75, "defesa": 65, "velocidade": 75},
+    {"name": "Raio Negro", "força": 95, "inteligência": 75, "defesa": 90, "velocidade": 70},
+    {"name": "Adam Warlock", "força": 95, "inteligência": 90, "defesa": 90, "velocidade": 85},
+    {"name": "Doutor Destino", "força": 90, "inteligência": 95, "defesa": 95, "velocidade": 65},
+    {"name": "Reed Richards", "força": 50, "inteligência": 100, "defesa": 55, "velocidade": 50},
+    {"name": "Johnny Storm", "força": 75, "inteligência": 65, "defesa": 70, "velocidade": 90}
+]
+
+pool2 = [
+    {"name": "Homem de Ferro", "força": 85, "inteligência": 95, "defesa": 90, "velocidade": 60},
+    {"name": "Thor", "força": 100, "inteligência": 65, "defesa": 95, "velocidade": 80},
+    {"name": "Gavião Arqueiro", "força": 45, "inteligência": 70, "defesa": 45, "velocidade": 50},
+    {"name": "Feiticeira Escarlate", "força": 75, "inteligência": 90, "defesa": 85, "velocidade": 70},
+    {"name": "Demolidor", "força": 65, "inteligência": 70, "defesa": 60, "velocidade": 55},
+    {"name": "Tempestade", "força": 75, "inteligência": 80, "defesa": 70, "velocidade": 75},
+    {"name": "Groot", "força": 90, "inteligência": 60, "defesa": 90, "velocidade": 40},
+    {"name": "Senhor das Estrelas", "força": 65, "inteligência": 75, "defesa": 65, "velocidade": 65},
+    {"name": "Thanos", "força": 100, "inteligência": 90, "defesa": 100, "velocidade": 70},
+    {"name": "Cavaleiro da Lua", "força": 70, "inteligência": 65, "defesa": 75, "velocidade": 60},
+    {"name": "Deadpool", "força": 80, "inteligência": 70, "defesa": 90, "velocidade": 60},
+    {"name": "Cable", "força": 85, "inteligência": 85, "defesa": 85, "velocidade": 70},
+    {"name": "Colossus", "força": 90, "inteligência": 55, "defesa": 95, "velocidade": 40},
+    {"name": "Hércules", "força": 100, "inteligência": 65, "defesa": 95, "velocidade": 65},
+    {"name": "Elektra", "força": 70, "inteligência": 75, "defesa": 70, "velocidade": 70},
+    {"name": "Motoqueiro Fantasma", "força": 90, "inteligência": 65, "defesa": 85, "velocidade": 70},
+    {"name": "Nova (Richard Rider)", "força": 85, "inteligência": 75, "defesa": 85, "velocidade": 85},
+    {"name": "Karnak", "força": 60, "inteligência": 90, "defesa": 60, "velocidade": 70},
+    {"name": "Falcão de Aço", "força": 75, "inteligência": 75, "defesa": 75, "velocidade": 70},
+    {"name": "Mercenário", "força": 65, "inteligência": 65, "defesa": 60, "velocidade": 60},
+    {"name": "Killmonger", "força": 75, "inteligência": 70, "defesa": 80, "velocidade": 65},
+    {"name": "Bucky Barnes (Soldado Invernal)", "força": 75, "inteligência": 70, "defesa": 75, "velocidade": 60},
+    {"name": "Valquíria", "força": 85, "inteligência": 65, "defesa": 80, "velocidade": 65},
+    {"name": "Heimdall", "força": 85, "inteligência": 70, "defesa": 80, "velocidade": 60},
+    {"name": "Sif", "força": 75, "inteligência": 65, "defesa": 70, "velocidade": 70},
+    {"name": "Kraven, o Caçador", "força": 70, "inteligência": 70, "defesa": 70, "velocidade": 70},
+    {"name": "Hela", "força": 95, "inteligência": 85, "defesa": 90, "velocidade": 70},
+    {"name": "Venom", "força": 90, "inteligência": 65, "defesa": 85, "velocidade": 65},
+    {"name": "Carnificina", "força": 90, "inteligência": 60, "defesa": 85, "velocidade": 70},
+    {"name": "Gilgamesh", "força": 95, "inteligência": 60, "defesa": 90, "velocidade": 65},
+    {"name": "Sersi", "força": 85, "inteligência": 80, "defesa": 85, "velocidade": 70},
+    {"name": "Kang, o Conquistador", "força": 85, "inteligência": 95, "defesa": 85, "velocidade": 65}
+]
+
 # Function to load chat IDs from a file
 def load_chat_ids():
     global chat_ids
@@ -528,56 +598,53 @@ async def start_top_trumps_game(update: Update, context: CallbackContext) -> Non
         await update.message.reply_text(f"Não foi possível encontrar o usuário @{user1_username}. Verifique o nome de usuário e tente novamente.")
         return
 
-    # Captura o ID do chat do grupo diretamente do update
     group_chat_id = update.effective_chat.id
     logger.info(f"Starting Top Trumps game in group chat ID: {group_chat_id}")
 
-    # Inicializa o estado do jogo com todas as chaves necessárias
     game_state = {
         "group_chat_id": group_chat_id,
         "user1": {"id": user1_id, "username": user1_username, "card": None, "score": 0},
         "user2": {"id": user2_id, "username": user2_username, "card": None, "score": 0},
         "round": 1,
-        "multiplier": 1,  # Start with a 1x multiplier
+        "multiplier": 1,
         "user1_snap": False,
-        "user2_snap": False
+        "user2_snap": False,
+        "message_id": None  # Add this to store the message ID
     }
 
     logger.info(f"Initial game state: {game_state}")
 
-    # Mensagem de início de partida para o grupo
     start_message = (
         f"🎮 *A partida de Top Trumps começou!*\n\n"
         f"*{user1_username}* vs *{user2_username}*\n\n"
         f"Cada jogador deve escolher um atributo para competir. Que o melhor vença! 💪"
     )
-    await context.bot.send_message(
+    message = await context.bot.send_message(
         chat_id=group_chat_id,
         text=start_message,
         parse_mode='Markdown'
     )
 
-    # Salva o estado inicial do jogo
+    game_state["message_id"] = message.message_id  # Store the message ID
+
     save_game_state(game_state)
 
-    # Inicia o jogo
     await initiate_top_trumps_game(user1_id, user2_id, user1_username, user2_username, update, context)
 
 # Function to initiate a round of Top Trumps
 async def initiate_top_trumps_game(user1_id, user2_id, user1_username, user2_username, update, context):
     game_state = load_game_state()
-    group_chat_id = game_state.get("group_chat_id")  # Usa o ID do grupo armazenado no game_state
+    group_chat_id = game_state.get("group_chat_id")
 
-    # Verifique se o game_state tem as chaves necessárias
+    # Ensure the game_state has the necessary keys
     if "user1" not in game_state or "user2" not in game_state:
         logger.error("game_state is missing keys for user1 or user2")
         return
 
-    # Sorteia cartas e armazena no estado do jogo
+    # Draw cards for the players and update the game state
     user1_card = draw_card()
     user2_card = draw_card()
     
-    # Atualiza o estado do jogo com as cartas sorteadas
     game_state["user1"]["card"] = user1_card
     game_state["user2"]["card"] = user2_card
     
@@ -587,10 +654,9 @@ async def initiate_top_trumps_game(user1_id, user2_id, user1_username, user2_use
     game_state["user1_snap"] = False
     game_state["user2_snap"] = False
     
-    # Salva o estado do jogo com as cartas atualizadas
     save_game_state(game_state)
 
-    # Formatação melhorada da mensagem
+    # Create the message text with the card details
     message_text = (
         f"🎮 *Rodada {game_state['round']}*\n\n"
         f"✨ *{user1_username}*, você recebeu: *{user1_card['name']}*!\n\n"
@@ -598,21 +664,21 @@ async def initiate_top_trumps_game(user1_id, user2_id, user1_username, user2_use
         f"🧠 **Inteligência**: *{user1_card['inteligência']}*\n"
         f"🛡️ **Defesa**: *{user1_card['defesa']}*\n"
         f"⚡ **Velocidade**: *{user1_card['velocidade']}*\n\n"
-        f"Escolha uma categoria para jogar contra *{user2_username}*:\n\n"
+        f"Escolha uma categoria para jogar contra *{user2_username}* ou use Snap para dobrar os pontos!\n"
         f"🪙 *Pontos atuais*: {game_state['user1']['score']} vs {game_state['user2']['score']}\n"
     )
 
-    # Cria botões para o user1 selecionar um atributo, com emojis para destacar, e adicionar a opção de Snap
+    # Add buttons for selecting attributes, Snap, and Run
     keyboard = [
         [InlineKeyboardButton("💪 Força", callback_data=f"força|{user1_id}|{user2_id}|{group_chat_id}")],
         [InlineKeyboardButton("🧠 Inteligência", callback_data=f"inteligência|{user1_id}|{user2_id}|{group_chat_id}")],
         [InlineKeyboardButton("🛡️ Defesa", callback_data=f"defesa|{user1_id}|{user2_id}|{group_chat_id}")],
         [InlineKeyboardButton("⚡ Velocidade", callback_data=f"velocidade|{user1_id}|{user2_id}|{group_chat_id}")],
-        [InlineKeyboardButton("🔥 Snap", callback_data=f"snap|{user1_id}|{user2_id}|{group_chat_id}")]
+        [InlineKeyboardButton("🔥 Snap", callback_data=f"snap|{user1_id}|{user2_id}|{group_chat_id}")],
+        [InlineKeyboardButton("🏃 Run", callback_data=f"run|{user1_id}|{user2_id}|{group_chat_id}")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Envia os detalhes da carta e os botões inline para o user1 no chat privado
     await context.bot.send_message(
         chat_id=user1_id, 
         text=message_text,
@@ -622,54 +688,183 @@ async def initiate_top_trumps_game(user1_id, user2_id, user1_username, user2_use
 
 # Function to handle attribute choice
 async def handle_attribute_choice(update: Update, context: CallbackContext) -> None:
+    logger.info("handle_attribute_choice triggered.")  # Log when this function is triggered
+
     query = update.callback_query
     await query.answer()
-    
-    # Carrega o estado do jogo
-    game_state = load_game_state()
 
-    # Verifique se o game_state tem as chaves necessárias
-    if "user1" not in game_state or "user2" not in game_state:
+    # Log the callback query data
+    logger.info(f"Callback query data: {query.data}")  # Log the callback data
+
+    # Load the game state
+    game_state = load_game_state()
+    logger.info(f"Loaded game state: {game_state}")  # Log the loaded game state
+
+    # Verify the game_state has the necessary keys
+    if not game_state or "user1" not in game_state or "user2" not in game_state:
         logger.error("game_state is missing keys for user1 or user2")
+        await query.message.reply_text("O jogo terminou ou houve um problema com o estado do jogo. Por favor, comece um novo jogo.")
         return
 
-    # Extrai o ID do chat do grupo e outras informações do jogo
+    # Extract the group chat ID and other game information
     group_chat_id = game_state.get("group_chat_id")
     round_number = game_state.get("round", 1)
 
-    # Divide os dados do callback para extrair o atributo selecionado e IDs dos jogadores
+    # Split the callback data to extract the selected attribute and player IDs
     data = query.data.split("|")
     action = data[0]
 
-    if action == "snap":
+    logger.info(f"Action received: {action}")  # Log the action received
+
+    # Handle specific actions
+    if action in ["força", "inteligência", "defesa", "velocidade"]:
+        attribute = action
+        user1_id = int(data[1])
+        user2_id = int(data[2])
+
+        logger.info(f"Attribute chosen: {attribute}, User1 ID: {user1_id}, User2 ID: {user2_id}")
+
+        # Save the selected attribute to the game state
+        game_state["selected_attribute"] = attribute
+        save_game_state(game_state)
+        logger.info("Saved selected attribute to game state.")
+
+        # Proceed to prompt the second player
+        await prompt_continue_or_run(update, context)
+
+    elif action == "continue":
+        logger.info("Continue action selected.")
+
+        # Continue the game (resolve the round)
+        await handle_continue_choice(update, context)
+
+    elif action == "snap":
+        logger.info(f"Snap action received from user: {query.from_user.id}")
         user_id = int(data[1])
         if game_state["user1"]["id"] == user_id and not game_state.get("user1_has_snapped", False):
             game_state["user1_has_snapped"] = True
             game_state["multiplier"] *= 2
-            await context.bot.send_message(chat_id=group_chat_id, text=f"{game_state['user1']['username']} usou Snap! Os pontos agora valem {game_state['multiplier']}x.")
+            await context.bot.send_message(chat_id=game_state['group_chat_id'], text=f"{game_state['user1']['username']} usou Snap! Os pontos agora valem {game_state['multiplier']}x.")
         elif game_state["user2"]["id"] == user_id and not game_state.get("user2_has_snapped", False):
             game_state["user2_has_snapped"] = True
             game_state["multiplier"] *= 2
-            await context.bot.send_message(chat_id=group_chat_id, text=f"{game_state['user2']['username']} usou Snap! Os pontos agora valem {game_state['multiplier']}x.")
+            await context.bot.send_message(chat_id=game_state['group_chat_id'], text=f"{game_state['user2']['username']} usou Snap! Os pontos agora valem {game_state['multiplier']}x.")
         else:
             await query.message.reply_text("Você já usou Snap ou não é sua vez.")
         save_game_state(game_state)
-        return  # End processing after a snap action
 
-    # Handle normal attribute selection here
-    attribute = action
-    user1_id = int(data[1])
-    user2_id = int(data[2])
+    elif action == "run":
+        logger.info("Run action selected.")
+        await handle_run_action(update, context)
 
-    # Recupera as cartas dos jogadores
+    else:
+        logger.error(f"Unhandled action: {action}")
+
+# Function to prompt the second player to run or continue
+async def prompt_continue_or_run(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    await query.answer()
+
+    # Load the game state
+    game_state = load_game_state()
+    logger.info(f"Game state in prompt_continue_or_run: {game_state}")  # Log the game state
+
+    # Verify the game state is valid
+    if not game_state or "user1" not in game_state or "user2" not in game_state:
+        logger.error("game_state is missing keys for user1 or user2")
+        await query.message.reply_text("O jogo terminou ou houve um problema com o estado do jogo. Por favor, comece um novo jogo.")
+        return
+
+    # Determine the second player (the player who hasn't chosen the attribute)
+    first_player_id = game_state['user1']['id']
+    second_player_id = game_state['user2']['id'] if query.from_user.id == first_player_id else first_player_id
+    second_player_username = game_state['user2']['username'] if query.from_user.id == first_player_id else game_state['user1']['username']
+    second_player_card = game_state['user2']['card'] if query.from_user.id == first_player_id else game_state['user1']['card']
+    second_player_points = game_state['user2']['score'] if query.from_user.id == first_player_id else game_state['user1']['score']
+
+    # Get the chosen attribute and its value
+    chosen_attribute = game_state["selected_attribute"]
+    second_player_value = second_player_card[chosen_attribute]
+    logger.info(f"Second player value for {chosen_attribute}: {second_player_value}")  # Log the second player's card value
+
+    # Create the message text
+    message_text = (
+        f"{second_player_username}, o primeiro jogador escolheu *{chosen_attribute.capitalize()}*.\n"
+        f"Sua carta é *{second_player_card['name']}* com um valor de {chosen_attribute} de *{second_player_value}*.\n\n"
+        f"Seus pontos atuais: *{second_player_points}*.\n\n"
+        "Você deseja continuar, correr ou usar Snap?"
+    )
+    logger.info(f"Message to second player: {message_text}")  # Log the message text
+
+    # Create the buttons for the second player to choose an action
+    keyboard = [
+        [InlineKeyboardButton("🟢 Continuar", callback_data=f"continue|{second_player_id}|{chosen_attribute}")],
+        [InlineKeyboardButton("🏃‍♂️ Correr", callback_data=f"run|{second_player_id}|{chosen_attribute}")],
+        [InlineKeyboardButton("🔥 Snap", callback_data=f"snap|{second_player_id}|{chosen_attribute}")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    logger.info(f"Reply markup created: {reply_markup}")  # Log the reply markup
+
+    # Send the message with the options to the second player
+    sent_message = await context.bot.send_message(
+        chat_id=second_player_id,
+        text=message_text,
+        reply_markup=reply_markup,
+        parse_mode='Markdown'
+    )
+    logger.info(f"Message sent to second player with message ID: {sent_message.message_id}")  # Log the sent message ID
+
+# Function to handle the "run" action
+async def handle_run_action(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    # Load the game state
+    game_state = load_game_state()
+    logger.info(f"Game state loaded: {game_state}")  # Log the loaded game state
+
+    # Verify the game_state has the necessary keys
+    if not game_state or "user1" not in game_state or "user2" not in game_state:
+        logger.error("game_state is missing keys for user1 or user2")
+        await query.message.reply_text("O jogo terminou ou houve um problema com o estado do jogo. Por favor, comece um novo jogo.")
+        return
+
+    user_id = query.from_user.id
+
+    if game_state["user1"]["id"] == user_id:
+        await end_game(update, context, winner_id=game_state["user2"]["id"], winner_username=game_state['user2']['username'], reason="O adversário fugiu")
+    elif game_state["user2"]["id"] == user_id:
+        await end_game(update, context, winner_id=game_state["user1"]["id"], winner_username=game_state['user1']['username'], reason="O adversário fugiu")
+    else:
+        await query.message.reply_text("Você não está jogando.")
+
+
+# Function to handle when the second player decides to continue
+async def handle_continue_choice(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    await query.answer()
+
+    game_state = load_game_state()
+
+    if "user1" not in game_state or "user2" not in game_state:
+        logger.error("game_state is missing keys for user1 or user2")
+        return
+
+    group_chat_id = game_state.get("group_chat_id")
+    message_id = game_state.get("message_id")
+    round_number = game_state.get("round", 1)
+
+    attribute = game_state.get("selected_attribute")
+
+    if not attribute:
+        logger.error("No attribute selected for this round")
+        return
+
     user1_card = game_state["user1"]["card"]
     user2_card = game_state["user2"]["card"]
 
-    # Determina o valor do atributo para ambos os jogadores
     user1_value = user1_card[attribute]
     user2_value = user2_card[attribute]
 
-    # Determina o vencedor da rodada e atualiza a pontuação
     if user1_value > user2_value:
         result_message = (
             f"🏆 *{game_state['user1']['username']} venceu a rodada!*\n\n"
@@ -677,7 +872,7 @@ async def handle_attribute_choice(update: Update, context: CallbackContext) -> N
             f"🃏 *Carta de {game_state['user1']['username']}:* {user1_card['name']} | *{attribute.capitalize()}:* {user1_value}\n"
             f"🃏 *Carta de {game_state['user2']['username']}:* {user2_card['name']} | *{attribute.capitalize()}:* {user2_value}\n"
         )
-        game_state["user1"]["score"] += game_state["multiplier"]  # Incrementa a pontuação do user1
+        game_state["user1"]["score"] += game_state["multiplier"]
     elif user1_value < user2_value:
         result_message = (
             f"🏆 *{game_state['user2']['username']} venceu a rodada!*\n\n"
@@ -685,7 +880,7 @@ async def handle_attribute_choice(update: Update, context: CallbackContext) -> N
             f"🃏 *Carta de {game_state['user2']['username']}:* {user2_card['name']} | *{attribute.capitalize()}:* {user2_value}\n"
             f"🃏 *Carta de {game_state['user1']['username']}:* {user1_card['name']} | *{attribute.capitalize()}:* {user1_value}\n"
         )
-        game_state["user2"]["score"] += game_state["multiplier"]  # Incrementa a pontuação do user2
+        game_state["user2"]["score"] += game_state["multiplier"]
     else:
         result_message = (
             f"🤝 *Empate na rodada!*\n\n"
@@ -694,14 +889,12 @@ async def handle_attribute_choice(update: Update, context: CallbackContext) -> N
             f"🃏 *Carta de {game_state['user2']['username']}:* {user2_card['name']} | *{attribute.capitalize()}:* {user2_value}\n"
         )
 
-    # Envia o resultado da rodada para o grupo
     await context.bot.send_message(
         chat_id=group_chat_id,
         text=result_message,
         parse_mode='Markdown'
     )
 
-    # Verifica se o número máximo de rodadas foi atingido
     if round_number >= 5:
         user1_score = game_state["user1"]["score"]
         user2_score = game_state["user2"]["score"]
@@ -719,11 +912,8 @@ async def handle_attribute_choice(update: Update, context: CallbackContext) -> N
             game_state = {}
             save_game_state(game_state)
     else:
-        # Incrementa o número da rodada
         game_state["round"] += 1
         save_game_state(game_state)
-
-        # Inicia a próxima rodada
         await initiate_top_trumps_game(
             game_state['user1']['id'], 
             game_state['user2']['id'], 
@@ -734,18 +924,13 @@ async def handle_attribute_choice(update: Update, context: CallbackContext) -> N
         )
 
 def draw_card():
-    # Example card data structure
-    cards = [
-        {"name": "Capitão América", "força": 70, "inteligência": 70, "defesa": 90, "velocidade": 65},
-        {"name": "Homem de Ferro", "força": 80, "inteligência": 90, "defesa": 80, "velocidade": 75},
-        {"name": "Thor", "força": 95, "inteligência": 60, "defesa": 85, "velocidade": 70},
-        {"name": "Viúva Negra", "força": 60, "inteligência": 85, "defesa": 50, "velocidade": 80},
-        {"name": "Hulk", "força": 100, "inteligência": 40, "defesa": 100, "velocidade": 50},
-        # Add more cards as needed
-    ]
+    pool_number = random.choice([1, 2]) 
+    if pool_number == 1:
+        card = random.choice(pool1)
+    else:
+        card = random.choice(pool2)
     
-    # Randomly select and return a card
-    return random.choice(cards)
+    return card
 
 # Load or initialize the rank data
 def load_rankings():
@@ -822,27 +1007,45 @@ async def snap(update: Update, context: CallbackContext) -> None:
 
 # Command to Run
 async def run(update: Update, context: CallbackContext) -> None:
-    game_state = load_game_state()
-    user_id = update.message.from_user.id
+    query = update.callback_query
+    user_id = query.from_user.id
     
+    # Load the game state
+    game_state = load_game_state()
+
+    # Ensure the game_state has the necessary keys
+    if not game_state or "user1" not in game_state or "user2" not in game_state:
+        logger.error("game_state is missing keys for user1 or user2")
+        await query.message.reply_text("The game has already ended or something went wrong. Please start a new game.")
+        return
+
+    # Determine the winner based on who chose to run
     if game_state["user1"]["id"] == user_id:
         await end_game(update, context, winner_id=game_state["user2"]["id"], winner_username=game_state['user2']['username'], reason="O adversário fugiu")
     elif game_state["user2"]["id"] == user_id:
         await end_game(update, context, winner_id=game_state["user1"]["id"], winner_username=game_state['user1']['username'], reason="O adversário fugiu")
     else:
-        await update.message.reply_text("Você não está jogando.")
+        await query.message.reply_text("Você não está jogando.")
 
 # Function to end the game
 async def end_game(update: Update, context: CallbackContext, winner_id, winner_username, reason="") -> None:
     game_state = load_game_state()
-    user1_score = game_state["user1"]["score"]
-    user2_score = game_state["user2"]["score"]
+    logger.info(f"Ending game with game state: {game_state}")  # Log the game state before ending
+
+    if not game_state or "user1" not in game_state or "user2" not in game_state:
+        logger.error("game_state is missing keys for user1 or user2")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="O jogo terminou ou houve um problema com o estado do jogo. Por favor, comece um novo jogo.")
+        return
+
+    user1_score = game_state.get("user1", {}).get("score", 0)
+    user2_score = game_state.get("user2", {}).get("score", 0)
+    message_id = game_state.get("message_id")
 
     if reason:
         final_message = f"🏃 *{reason}*\n\n"
     else:
         final_message = ""
-    
+
     if winner_id == game_state['user1']['id']:
         final_message += f"🎉 *O jogo terminou! {winner_username} é o grande vencedor com {user1_score} pontos!*"
         update_rankings(winner_id, game_state['user2']['id'], user1_score)
@@ -850,15 +1053,41 @@ async def end_game(update: Update, context: CallbackContext, winner_id, winner_u
         final_message += f"🎉 *O jogo terminou! {winner_username} é o grande vencedor com {user2_score} pontos!*"
         update_rankings(winner_id, game_state['user1']['id'], user2_score)
 
-    await context.bot.send_message(
-        chat_id=game_state["group_chat_id"],
-        text=final_message,
-        parse_mode='Markdown'
-    )
-    
-    # Finalize the game by resetting the game state
-    game_state = {}
+    # Log the final message to be sent
+    logger.info(f"Final message to be sent or edited: {final_message}")
+
+    try:
+        if message_id:
+            # Log that we're attempting to edit the message
+            logger.info(f"Attempting to edit message with ID {message_id} in chat {game_state['group_chat_id']}")
+            await context.bot.edit_message_text(
+                chat_id=game_state["group_chat_id"],
+                message_id=message_id,
+                text=final_message,
+                parse_mode='Markdown'
+            )
+            logger.info(f"Message with ID {message_id} successfully edited.")
+        else:
+            # Log that we're sending a new message
+            logger.info(f"Message ID not found, sending a new message to chat {game_state['group_chat_id']}")
+            await context.bot.send_message(
+                chat_id=game_state["group_chat_id"],
+                text=final_message,
+                parse_mode='Markdown'
+            )
+            logger.info("New final message sent successfully.")
+    except Exception as e:
+        logger.error(f"Failed to send or edit the game end message: {e}")
+        await context.bot.send_message(
+            chat_id=game_state["group_chat_id"],
+            text=final_message,
+            parse_mode='Markdown'
+        )
+
+    # Clear the game state after ending the game
+    game_state.clear()
     save_game_state(game_state)
+    logger.info("Game state cleared after ending the game.")
 
 # Make sure to update the score after each Top Trumps game
 def update_score_after_game():
@@ -868,7 +1097,7 @@ def update_score_after_game():
     
     update_rankings(winner_id, loser_id)
 
-# Main function to start the bot
+# Updated main function to start the bot with only one CallbackQueryHandler
 def main():
     print("Starting bot...")
 
@@ -901,8 +1130,9 @@ def main():
     # Message handler for 'Galactus' keyword
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, daily_curse_by_galactus))
 
-    # Add a handler for attribute choice in Top Trumps
+    # Combined CallbackQueryHandler for attribute choice, snap, run, and continue actions
     application.add_handler(CallbackQueryHandler(handle_attribute_choice))
+    application.add_handler(CallbackQueryHandler(handle_attribute_choice, pattern='^(força|inteligência|defesa|velocidade|snap|run|continue)$'))
 
     # Run the periodic task every 30 minutes to check for tier list updates
     job_queue = application.job_queue
