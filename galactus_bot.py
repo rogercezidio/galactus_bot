@@ -239,6 +239,23 @@ async def start(update: Update, context: CallbackContext) -> None:
 
     await update.message.reply_text('Olá! Eu sou o Galactus Bot. Estou ouvindo...')
 
+async def decks(update: Update, context: CallbackContext) -> None:
+    global last_updated_date  # Ensure we're accessing the global last updated date
+
+    reply_markup = get_decks_keyboard()
+
+    if last_updated_date:
+        # If we have the last updated date, include it in the message
+        message = f"Selecione um deck para visualizar:\n\nÚltima atualização: {last_updated_date}"
+    else:
+        # If no date is available, indicate that the date is unknown
+        message = "Selecione um deck para visualizar:\n\nÚltima atualização: Data desconhecida"
+
+    if reply_markup:
+        await update.message.reply_text(message, reply_markup=reply_markup)
+    else:
+        await update.message.reply_text('Failed to retrieve deck information.')
+
 async def get_user_profile_photo(user_id, bot):
     photos = await bot.get_user_profile_photos(user_id)
     if photos.total_count > 0:
@@ -496,6 +513,7 @@ def main():
 
     # Command handlers
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("decks", decks))
     application.add_handler(CommandHandler("spotlight", send_spotlight_link))
 
     # Handler for welcoming new users
