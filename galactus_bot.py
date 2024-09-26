@@ -3,9 +3,11 @@ import re
 import telegram  # <-- Make sure to import the telegram module
 import json
 import time
-import logging
+import base64
 import random
+import logging
 import requests
+from pathlib import Path
 from bs4 import BeautifulSoup
 from openai import AsyncOpenAI
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -365,33 +367,94 @@ async def decks(update: Update, context: CallbackContext) -> None:
     else:
         await update.message.reply_text('Failed to retrieve deck information.')
 
-# Function to generate a personalized roast using OpenAI
-async def generate_galactus_roast(user_first_name):
-    try:
-        # Prompt for roasting the user by their name
-        prompt = f"Galactus está prestes a humilhar um humano chamado {user_first_name}. Escreva um insulto sarcástico e devastador."
+async def get_user_profile_photo(user_id, bot):
+    photos = await bot.get_user_profile_photos(user_id)
+    if photos.total_count > 0:
+        # Get the largest size photo
+        file_id = photos.photos[0][-1].file_id
+        file = await bot.get_file(file_id)
+        file_path = os.path.join(Path(__file__).parent, f"{user_id}_photo.jpg")
         
-        response = await client.chat.completions.create(
+        # Download the file using the correct async method
+        await file.download_to_drive(file_path)
+        
+        return file_path
+    return None
+
+# Function to encode the image
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+async def generate_galactus_roast(user_first_name, profile_photo_path):
+    try:
+        # Encode the user's profile picture to base64
+        base64_image = encode_image(profile_photo_path)
+
+        # Step 1: Describe the image
+        payload = {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Descreva esta imagem em português."
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "max_tokens": 300
+        }
+
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {client.api_key}"},
+            json=payload
+        )
+        image_description = response.json()['choices'][0]['message']['content']
+
+        # Step 2: Use the description to generate the roast
+        roast_prompt = f"Galactus está prestes a humilhar um humano chamado {user_first_name}. Aqui está a descrição da imagem de perfil desse usuário: {image_description}. Escreva um insulto humilhante, sarcástico e devastador baseado nessa descrição."
+
+        # Generate the roast text using the chat API
+        roast_response = await client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "Você é Galactus, o devorador de mundos. Humilhe este humano como só Galactus pode, mencionando seu nome."},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content": "Você é Galactus, o devorador de mundos. Humilhe este humano de forma curta e grossa como só Galactus pode, mencionando seu nome e usando a imagem descrita."},
+                {"role": "user", "content": roast_prompt}
             ],
             model="gpt-3.5-turbo",
         )
 
-        return response.choices[0].message.content
+        roast_text = roast_response.choices[0].message.content
+
+        return roast_text
+
     except Exception as e:
-        logger.error(f"Erro ao gerar o insulto de Galactus: {e}")
-        return f"{user_first_name}, você nem é digno de uma humilhação do devorador de mundos."
+        logging.error(f"Erro ao gerar o insulto de Galactus: {e}")
+        return f"{user_first_name}, você nem é digno de uma humilhação do devorador de mundos.", None
 
 # Function to roast the user
 async def roast_user(update: Update, context: CallbackContext) -> None:
     user_first_name = update.message.from_user.first_name  # Get the user's first name
-    roast_message = await generate_galactus_roast(user_first_name)  # Generate the roast
+    user_id = update.message.from_user.id
+
+    # Get the user's profile photo (if available)
+    profile_photo_path = await get_user_profile_photo(user_id, context.bot)
+    
+    # Generate the roast with the user's name and photo
+    roast_message = await generate_galactus_roast(user_first_name, profile_photo_path)  # Generate the roast
 
     # Send the roast message
     await update.message.reply_text(f"{roast_message}")
-    
+        
     # Optionally, send a Galactus GIF for effect
     await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GALACTUS_GIF_URL)
 
