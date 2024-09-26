@@ -1,15 +1,17 @@
 import os
 import re
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+import telegram  # <-- Make sure to import the telegram module
+import json
 import time
-import logging
+import base64
 import random
+import logging
 import requests
+from pathlib import Path
 from bs4 import BeautifulSoup
 from openai import AsyncOpenAI
-from apscheduler.triggers.cron import CronTrigger
-from datetime import datetime, timedelta
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, CallbackQueryHandler
 
 # Enable logging to debug if needed
 logging.basicConfig(
@@ -30,12 +32,22 @@ if TOKEN is None:
 
 # Dictionary to store the last execution time for each chat
 chat_cooldowns = {}
+# Global dictionary to track user ids based on username
+user_ids = {}
+user_data = {}
+last_updated_date = None
+# Set to store chat IDs
+chat_ids = set()
+game_state = {}
 
 # Cooldown time in seconds (e.g., 10 seconds)
 COOLDOWN_TIME = 60
+RANK_FILE_PATH = '/app/data/rankings.json'
 DECK_LIST_URL = 'https://marvelsnapzone.com/tier-list/'
 UPDATE_FILE_PATH = '/app/data/last_update.txt'  # Make sure this matches the volume mount path
 CHAT_IDS_FILE_PATH = '/app/data/chat_ids.txt'  # File to store chat IDs
+USER_IDS_FILE_PATH = '/app/data/user_ids.json'
+GAME_STATE_FILE_PATH = '/app/data/game_state.json'
 GALACTUS_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2Z4amt5dTVlYWEycmZ4bjJ1MzIwemViOTBlcGN1eXVkMXcxcXZzbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7QL0aLRbHtAyc/giphy.gif"
 GALACTUS_WELCOME_GIF_URL= "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTQwb2dzejFrejhyMjc4NWh1OThtMW1vOGxvMzVwd3NtOXo2YWZhMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT1XGCiATaxXxW7pp6/giphy-downsized-large.gif"
 ROULETTE_URL = "https://pay-va.nvsgames.com/topup/262304/eg-en?tab=purchase"
@@ -89,12 +101,6 @@ GALACTUS_PATTERN = re.compile(r'''
     \b                 # Word boundary
 ''', re.VERBOSE | re.IGNORECASE)
 
-
-last_updated_date = None
-# Set to store chat IDs
-chat_ids = set()
-
-# Function to load chat IDs from a file
 def load_chat_ids():
     global chat_ids
     if os.path.exists(CHAT_IDS_FILE_PATH):
@@ -104,7 +110,6 @@ def load_chat_ids():
             logger.info(f"Loaded {len(chat_ids)} chat ID(s) from file.")
     else:
         logger.info("No previous chat IDs found. Chat ID file does not exist.")
-
 # Function to save chat IDs to a file
 def save_chat_ids():
     try:
@@ -200,39 +205,32 @@ def get_decks_keyboard():
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0'
     }
     response = requests.get(DECK_LIST_URL, headers=headers)
-
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
         tables = soup.find_all('table')
-
         if tables:
             table = tables[0]
             keyboard = []
-
             for row in table.find_all('tr')[1:]:
                 columns = row.find_all('td')
-
                 if len(columns) == 2:
                     tier = columns[0].text.strip()
                     deck_name = columns[1].text.strip()
                     link_tag = columns[1].find('a')
                     deck_link = link_tag['href'] if link_tag else None
-
                     # Create an inline button for each deck
                     keyboard.append([
                         InlineKeyboardButton(f"{tier}: {deck_name}", url=deck_link)
                     ])
-
             return InlineKeyboardMarkup(keyboard)
         else:
             return None
     else:
         return None
-
+    
 # Start command handler
 async def start(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
-
     # Add the chat ID to the set and save it to the file
     if chat_id not in chat_ids:
         chat_ids.add(chat_id)
@@ -243,48 +241,109 @@ async def start(update: Update, context: CallbackContext) -> None:
 
 async def decks(update: Update, context: CallbackContext) -> None:
     global last_updated_date  # Ensure we're accessing the global last updated date
-    
+
     reply_markup = get_decks_keyboard()
-    
+
     if last_updated_date:
         # If we have the last updated date, include it in the message
         message = f"Selecione um deck para visualizar:\n\nÚltima atualização: {last_updated_date}"
     else:
         # If no date is available, indicate that the date is unknown
         message = "Selecione um deck para visualizar:\n\nÚltima atualização: Data desconhecida"
-    
+
     if reply_markup:
         await update.message.reply_text(message, reply_markup=reply_markup)
     else:
         await update.message.reply_text('Failed to retrieve deck information.')
 
-# Function to generate a personalized roast using OpenAI
-async def generate_galactus_roast(user_first_name):
-    try:
-        # Prompt for roasting the user by their name
-        prompt = f"Galactus está prestes a humilhar um humano chamado {user_first_name}. Escreva um insulto sarcástico e devastador."
+async def get_user_profile_photo(user_id, bot):
+    photos = await bot.get_user_profile_photos(user_id)
+    if photos.total_count > 0:
+        # Get the largest size photo
+        file_id = photos.photos[0][-1].file_id
+        file = await bot.get_file(file_id)
+        file_path = os.path.join(Path(__file__).parent, f"{user_id}_photo.jpg")
         
-        response = await client.chat.completions.create(
+        # Download the file using the correct async method
+        await file.download_to_drive(file_path)
+        
+        return file_path
+    return None
+
+# Function to encode the image
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+async def generate_galactus_roast(user_first_name, profile_photo_path):
+    try:
+        # Encode the user's profile picture to base64
+        base64_image = encode_image(profile_photo_path)
+
+        # Step 1: Describe the image
+        payload = {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Descreva esta imagem em português."
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "max_tokens": 300
+        }
+
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {client.api_key}"},
+            json=payload
+        )
+        image_description = response.json()['choices'][0]['message']['content']
+
+        # Step 2: Use the description to generate the roast
+        roast_prompt = f"Galactus está prestes a humilhar um humano chamado {user_first_name}. Aqui está a descrição da imagem de perfil desse usuário: {image_description}. Escreva um insulto humilhante, sarcástico e devastador baseado nessa descrição."
+
+        # Generate the roast text using the chat API
+        roast_response = await client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "Você é Galactus, o devorador de mundos. Humilhe este humano como só Galactus pode, mencionando seu nome."},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content": "Você é Galactus, o devorador de mundos. Humilhe este humano de forma curta e grossa como só Galactus pode, mencionando seu nome e usando a imagem descrita."},
+                {"role": "user", "content": roast_prompt}
             ],
             model="gpt-3.5-turbo",
         )
 
-        return response.choices[0].message.content
+        roast_text = roast_response.choices[0].message.content
+
+        return roast_text
+
     except Exception as e:
-        logger.error(f"Erro ao gerar o insulto de Galactus: {e}")
-        return f"{user_first_name}, você nem é digno de uma humilhação do devorador de mundos."
+        logging.error(f"Erro ao gerar o insulto de Galactus: {e}")
+        return f"{user_first_name}, você nem é digno de uma humilhação do devorador de mundos.", None
 
 # Function to roast the user
 async def roast_user(update: Update, context: CallbackContext) -> None:
     user_first_name = update.message.from_user.first_name  # Get the user's first name
-    roast_message = await generate_galactus_roast(user_first_name)  # Generate the roast
+    user_id = update.message.from_user.id
+
+    # Get the user's profile photo (if available)
+    profile_photo_path = await get_user_profile_photo(user_id, context.bot)
+    
+    # Generate the roast with the user's name and photo
+    roast_message = await generate_galactus_roast(user_first_name, profile_photo_path)  # Generate the roast
 
     # Send the roast message
     await update.message.reply_text(f"{roast_message}")
-    
+        
     # Optionally, send a Galactus GIF for effect
     await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GALACTUS_GIF_URL)
 
@@ -419,18 +478,38 @@ async def user_left_group(update: Update, context: CallbackContext) -> None:
         animation=GALACTUS_GIF_URL
     )
 
-# Main function to start the bot
+# Function to load user IDs from a file
+def load_user_ids():
+    global user_ids
+    if os.path.exists(USER_IDS_FILE_PATH):
+        try:
+            with open(USER_IDS_FILE_PATH, 'r') as file:
+                file_content = file.read().strip()
+                if file_content:  # Only load if file is not empty
+                    user_ids = json.loads(file_content)
+                    logger.info(f"Loaded {len(user_ids)} user ID(s) from file.")
+                else:
+                    logger.warning("User ID file is empty. Initializing with an empty dictionary.")
+                    user_ids = {}
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to decode JSON from file {USER_IDS_FILE_PATH}: {e}")
+            user_ids = {}
+    else:
+        logger.info("No previous user IDs found. User ID file does not exist.")
+        user_ids = {}
+
+# Updated main function to start the bot with only one CallbackQueryHandler
 def main():
     print("Starting bot...")
-
-    # Create the application
-    application = Application.builder().token(os.getenv("BOT_TOKEN")).build()
 
     # Load the last known updated date from file
     load_last_updated_date()
 
     # Load chat IDs from file
     load_chat_ids()
+
+    # Create the application
+    application = Application.builder().token(os.getenv("BOT_TOKEN")).build()
 
     # Command handlers
     application.add_handler(CommandHandler("start", start))

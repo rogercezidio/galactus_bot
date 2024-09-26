@@ -1,5 +1,4 @@
 .env
 .env.dev
 .env.prod
-app/data/chat_ids.txt
-app/data/last_update.txt
+app/data/
