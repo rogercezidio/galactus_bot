@@ -13,7 +13,7 @@ from functools import partial
 from openai import AsyncOpenAI
 from datetime import time as dt_time
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, JobQueue
 
 # Enable logging to debug if needed
 logging.basicConfig(
@@ -501,7 +501,64 @@ async def user_left_group(update: Update, context: CallbackContext) -> None:
         animation=GALACTUS_GIF_URL
     )
 
-# Updated main function to start the bot with only one CallbackQueryHandler
+# Function to send the link
+async def send_scheduled_link(context: CallbackContext, chat_id: int) -> None:
+    link = "https://pay-va.nvsgames.com/topup/262304/"
+    gif_url = "https://p19-marketing-va.bytedgame.com/obj/g-marketing-assets-va/2024_07_25_11_34_21/guide_s507015.gif"
+    message = (
+        "*Mortais insignificantes,*\n"
+        "*Vocês estão diante do Devorador de Mundos.* Contemplem a roleta cósmica que está à sua frente! "
+        "_O próprio universo treme ao meu comando, e agora, vocês também._ Clique no link, gire a roda do destino "
+        "e reivindique os tesouros que apenas o meu poder pode conceder.\n\n"
+        "*Não hesitem, pois o tempo é limitado e as recompensas, vastas.* O cosmos não espera pelos fracos. "
+        "Clique agora, ou seja esquecido!"
+    )
+
+    # Create an inline keyboard with the link
+    keyboard = [
+        [InlineKeyboardButton("Girar a roleta cósmica", url=link)]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Send the GIF
+    await context.bot.send_animation(chat_id=chat_id, animation=gif_url)
+
+    # Send the message with the inline keyboard
+    await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup, parse_mode='Markdown')
+
+def schedule_link_jobs_for_all_chats(job_queue: JobQueue):
+    """Schedule the message for all chat IDs saved in the JSON file."""
+    chats = load_chat_ids()
+    if not chats:
+        logger.info("No chat IDs found to schedule.")
+        return
+    
+    for chat in chats:
+        chat_name = chat.get("name", "Unknown Chat")
+        chat_id = chat.get("chat_id")
+        if chat_id is not None:
+            schedule_link_jobs(job_queue, chat_name, chat_id)
+        else:
+            logger.warning(f"Missing chat_id for chat '{chat_name}'.")
+
+def schedule_link_jobs(job_queue: JobQueue, chat_name: str, chat_id: int):
+    """Schedules the link sending for a specific chat with a unique job name."""
+    async def send_link_wrapper(context: CallbackContext) -> None:
+        await send_scheduled_link(context, chat_id)
+
+    # Create a unique job name for each chat ID
+    job_name = f"send_link_wrapper_{chat_id}"
+    logger.info(f"Scheduling job for chat '{chat_name}' with chat_id: {chat_id} and job_name: {job_name}")
+
+    # Schedule the link sending for Tuesday, Friday, and Sunday at 4 PM
+    job_queue.run_daily(
+        send_link_wrapper,  # Use the wrapper function# Use partial to pass chat_id
+        time=dt_time(hour=20, minute=00),
+        days=(2, 5, 0),  # 1=Tuesday, 4=Friday, 6=Sunday
+        name=job_name
+    )
+
+# Add the job scheduling to the main function
 def main():
     print("Starting bot...")
 
