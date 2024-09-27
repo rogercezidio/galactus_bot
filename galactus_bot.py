@@ -43,6 +43,8 @@ RANK_FILE_PATH = '/app/data/rankings.json'
 DECK_LIST_URL = 'https://marvelsnapzone.com/tier-list/'
 UPDATE_FILE_PATH = '/app/data/last_update.txt'  # Make sure this matches the volume mount path
 CHAT_IDS_FILE_PATH = '/app/data/chat_ids.txt'  # File to store chat IDs
+USER_IDS_FILE_PATH = '/app/data/user_ids.json'
+GAME_STATE_FILE_PATH = '/app/data/game_state.json'
 GALACTUS_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2Z4amt5dTVlYWEycmZ4bjJ1MzIwemViOTBlcGN1eXVkMXcxcXZzbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7QL0aLRbHtAyc/giphy.gif"
 GALACTUS_WELCOME_GIF_URL= "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTQwb2dzejFrejhyMjc4NWh1OThtMW1vOGxvMzVwd3NtOXo2YWZhMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT1XGCiATaxXxW7pp6/giphy-downsized-large.gif"
 
