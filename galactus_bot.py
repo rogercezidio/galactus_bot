@@ -11,7 +11,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from openai import AsyncOpenAI
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, CallbackQueryHandler
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 
 # Enable logging to debug if needed
 logging.basicConfig(
@@ -33,12 +33,9 @@ if TOKEN is None:
 # Dictionary to store the last execution time for each chat
 chat_cooldowns = {}
 # Global dictionary to track user ids based on username
-user_ids = {}
-user_data = {}
 last_updated_date = None
 # Set to store chat IDs
 chat_ids = set()
-game_state = {}
 
 # Cooldown time in seconds (e.g., 10 seconds)
 COOLDOWN_TIME = 60
@@ -50,7 +47,6 @@ USER_IDS_FILE_PATH = '/app/data/user_ids.json'
 GAME_STATE_FILE_PATH = '/app/data/game_state.json'
 GALACTUS_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2Z4amt5dTVlYWEycmZ4bjJ1MzIwemViOTBlcGN1eXVkMXcxcXZzbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7QL0aLRbHtAyc/giphy.gif"
 GALACTUS_WELCOME_GIF_URL= "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTQwb2dzejFrejhyMjc4NWh1OThtMW1vOGxvMzVwd3NtOXo2YWZhMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT1XGCiATaxXxW7pp6/giphy-downsized-large.gif"
-ROULETTE_URL = "https://pay-va.nvsgames.com/topup/262304/eg-en?tab=purchase"
 
 GROUP_RULES = """
 Proibido:
@@ -272,13 +268,19 @@ async def get_user_profile_photo(user_id, bot):
 
 # Function to encode the image
 def encode_image(image_path):
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
+    try:
+        with open(image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode('utf-8')
+    except Exception as e:
+        logging.error(f"Erro ao codificar a imagem: {e}")
+        return None
 
 async def generate_galactus_roast(user_first_name, profile_photo_path):
     try:
         # Encode the user's profile picture to base64
         base64_image = encode_image(profile_photo_path)
+        if not base64_image:
+            raise ValueError("Erro ao codificar a imagem do perfil.")
 
         # Step 1: Describe the image
         payload = {
@@ -308,6 +310,7 @@ async def generate_galactus_roast(user_first_name, profile_photo_path):
             headers={"Content-Type": "application/json", "Authorization": f"Bearer {client.api_key}"},
             json=payload
         )
+        response.raise_for_status()  # Check for HTTP errors
         image_description = response.json()['choices'][0]['message']['content']
 
         # Step 2: Use the description to generate the roast
@@ -324,7 +327,7 @@ async def generate_galactus_roast(user_first_name, profile_photo_path):
 
         roast_text = roast_response.choices[0].message.content
 
-        return roast_text
+        return roast_text, None  # Ensure exactly two values are returned
 
     except Exception as e:
         logging.error(f"Erro ao gerar o insulto de Galactus: {e}")
@@ -339,7 +342,7 @@ async def roast_user(update: Update, context: CallbackContext) -> None:
     profile_photo_path = await get_user_profile_photo(user_id, context.bot)
     
     # Generate the roast with the user's name and photo
-    roast_message = await generate_galactus_roast(user_first_name, profile_photo_path)  # Generate the roast
+    roast_message, _ = await generate_galactus_roast(user_first_name, profile_photo_path)  # Generate the roast
 
     # Send the roast message
     await update.message.reply_text(f"{roast_message}")
@@ -477,26 +480,6 @@ async def user_left_group(update: Update, context: CallbackContext) -> None:
         chat_id=update.effective_chat.id,
         animation=GALACTUS_GIF_URL
     )
-
-# Function to load user IDs from a file
-def load_user_ids():
-    global user_ids
-    if os.path.exists(USER_IDS_FILE_PATH):
-        try:
-            with open(USER_IDS_FILE_PATH, 'r') as file:
-                file_content = file.read().strip()
-                if file_content:  # Only load if file is not empty
-                    user_ids = json.loads(file_content)
-                    logger.info(f"Loaded {len(user_ids)} user ID(s) from file.")
-                else:
-                    logger.warning("User ID file is empty. Initializing with an empty dictionary.")
-                    user_ids = {}
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to decode JSON from file {USER_IDS_FILE_PATH}: {e}")
-            user_ids = {}
-    else:
-        logger.info("No previous user IDs found. User ID file does not exist.")
-        user_ids = {}
 
 # Updated main function to start the bot with only one CallbackQueryHandler
 def main():
