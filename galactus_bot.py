@@ -9,7 +9,9 @@ import logging
 import requests
 from pathlib import Path
 from bs4 import BeautifulSoup
+from functools import partial
 from openai import AsyncOpenAI
+from datetime import time as dt_time
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 
@@ -42,9 +44,8 @@ COOLDOWN_TIME = 60
 RANK_FILE_PATH = '/app/data/rankings.json'
 DECK_LIST_URL = 'https://marvelsnapzone.com/tier-list/'
 UPDATE_FILE_PATH = '/app/data/last_update.txt'  # Make sure this matches the volume mount path
-CHAT_IDS_FILE_PATH = '/app/data/chat_ids.txt'  # File to store chat IDs
+CHAT_IDS_FILE_PATH = '/app/data/chat_ids.json'
 USER_IDS_FILE_PATH = '/app/data/user_ids.json'
-GAME_STATE_FILE_PATH = '/app/data/game_state.json'
 GALACTUS_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2Z4amt5dTVlYWEycmZ4bjJ1MzIwemViOTBlcGN1eXVkMXcxcXZzbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7QL0aLRbHtAyc/giphy.gif"
 GALACTUS_WELCOME_GIF_URL= "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTQwb2dzejFrejhyMjc4NWh1OThtMW1vOGxvMzVwd3NtOXo2YWZhMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT1XGCiATaxXxW7pp6/giphy-downsized-large.gif"
 
@@ -98,20 +99,32 @@ GALACTUS_PATTERN = re.compile(r'''
 ''', re.VERBOSE | re.IGNORECASE)
 
 def load_chat_ids():
-    global chat_ids
-    if os.path.exists(CHAT_IDS_FILE_PATH):
-        with open(CHAT_IDS_FILE_PATH, 'r') as file:
-            ids = file.readlines()
-            chat_ids = {int(chat_id.strip()) for chat_id in ids}
-            logger.info(f"Loaded {len(chat_ids)} chat ID(s) from file.")
-    else:
-        logger.info("No previous chat IDs found. Chat ID file does not exist.")
-# Function to save chat IDs to a file
-def save_chat_ids():
+    """Load chat IDs from the JSON file and return them as a list of dictionaries."""
+    if not os.path.exists(CHAT_IDS_FILE_PATH):
+        logger.warning(f"Chat ID file not found at {CHAT_IDS_FILE_PATH}")
+        return []
+    
     try:
+        with open(CHAT_IDS_FILE_PATH, 'r') as file:
+            data = json.load(file)
+            chats = data.get("chats", [])
+            logger.info(f"Loaded {len(chats)} chat(s) from JSON file.")
+            return chats
+    except Exception as e:
+        logger.error(f"Failed to load chat IDs from JSON file: {e}")
+        return []
+
+
+def save_chat_ids(chat_ids):
+    """Save chat IDs and names to the JSON file."""
+    try:
+        # Prepare the data to be saved
+        data = {"chats": chat_ids}
+
+        # Write the data to the JSON file
         with open(CHAT_IDS_FILE_PATH, 'w') as file:
-            for chat_id in chat_ids:
-                file.write(f"{chat_id}\n")
+            json.dump(data, file, indent=4)
+        
         logger.info(f"Saved {len(chat_ids)} chat ID(s) to file.")
     except Exception as e:
         logger.error(f"Failed to save chat IDs: {e}")
@@ -224,14 +237,21 @@ def get_decks_keyboard():
     else:
         return None
     
-# Start command handler
+# Updated start command handler to also schedule the link jobs
 async def start(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
-    # Add the chat ID to the set and save it to the file
-    if chat_id not in chat_ids:
-        chat_ids.add(chat_id)
-        logger.info(f"New chat ID added: {chat_id}")
-        save_chat_ids()  # Persist chat IDs to file
+    chat_name = update.effective_chat.title or update.effective_chat.first_name
+    # Load existing chat IDs
+    existing_chats = load_chat_ids()
+
+    # Check if the chat ID already exists
+    if not any(chat['chat_id'] == chat_id for chat in existing_chats):
+        # Add the new chat ID and name
+        existing_chats.append({"name": chat_name, "chat_id": chat_id})
+        logger.info(f"New chat ID added: {chat_id} ({chat_name})")
+
+        # Persist chat IDs to file
+        save_chat_ids(existing_chats)
 
     await update.message.reply_text('Olá! Eu sou o Galactus Bot. Estou ouvindo...')
 
@@ -493,6 +513,8 @@ def main():
 
     # Create the application
     application = Application.builder().token(os.getenv("BOT_TOKEN")).build()
+
+    schedule_link_jobs_for_all_chats(application.job_queue)
 
     # Command handlers
     application.add_handler(CommandHandler("start", start))
