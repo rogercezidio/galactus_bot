@@ -9,7 +9,6 @@ import logging
 import requests
 from pathlib import Path
 from bs4 import BeautifulSoup
-from functools import partial
 from openai import AsyncOpenAI
 from datetime import time as dt_time
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -30,6 +29,11 @@ print(f"Bot Token: {TOKEN}")  # Debugging: Check if the token is being retrieved
 
 if TOKEN is None:
     print("Error: BOT_TOKEN environment variable is not set.")
+    exit(1)
+
+GALACTUS_CHAT_ID = os.getenv("GALACTUS_CHAT_ID")
+if GALACTUS_CHAT_ID is None:
+    logger.error("GALACTUS_CHAT_ID environment variable is not set.")
     exit(1)
 
 # Dictionary to store the last execution time for each chat
@@ -558,6 +562,56 @@ def schedule_link_jobs(job_queue: JobQueue, chat_name: str, chat_id: int):
         name=job_name
     )
 
+async def galactus_reply(update: Update, context: CallbackContext):
+    message = update.message
+    chat_id = message.chat.id
+    user_message = message.text
+
+    # Proceed only if the message is in the specified chat
+    if str(chat_id) == GALACTUS_CHAT_ID:
+        # Check if the message is a reply to the bot's message
+        is_reply_to_bot = (
+            message.reply_to_message and
+            message.reply_to_message.from_user and
+            message.reply_to_message.from_user.is_bot
+        )
+
+        # Check if the bot is mentioned in the message
+        is_bot_mentioned = False
+        if message.entities:
+            for entity in message.entities:
+                if entity.type == 'mention':
+                    mentioned_username = message.text[entity.offset:entity.offset + entity.length]
+                    if mentioned_username == f'@{context.bot.username}':
+                        is_bot_mentioned = True
+                        break
+                elif entity.type == 'text_mention':
+                    if entity.user and entity.user.id == context.bot.id:
+                        is_bot_mentioned = True
+                        break
+
+        # Proceed only if the message is a reply to the bot or mentions the bot
+        if is_reply_to_bot or is_bot_mentioned:
+            try:
+                prompt = f"Imite Galactus em uma conversa. Responda à seguinte mensagem com a personalidade e o tom de Galactus, você não precisa se apresentar, todos te conhecem:\nMensagem: {user_message}"
+
+                response = await client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "Você é Galactus, o Devorador de Mundos."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    max_tokens=150
+                )
+
+                galactus_response = response.choices[0].message.content
+
+                # Send Galactus' reply back to the user
+                await context.bot.send_message(chat_id=chat_id, text=galactus_response)
+            except Exception as e:
+                logger.error(f"Erro ao gerar resposta do Galactus: {e}")
+                await message.reply_text("Até Galactus comete erros...")
+
 # Add the job scheduling to the main function
 def main():
     print("Starting bot...")
@@ -573,6 +627,15 @@ def main():
 
     schedule_link_jobs_for_all_chats(application.job_queue)
 
+    # Add the message handler for Galactus' specific chat replies
+    galactus_filter = filters.TEXT & (~filters.COMMAND) & (filters.Regex(GALACTUS_PATTERN))
+
+    # Message handler for 'Galactus' keyword
+    application.add_handler(MessageHandler(galactus_filter, daily_curse_by_galactus))
+
+    # Add the message handler for Galactus replies
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, galactus_reply))
+
     # Command handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("decks", decks))
@@ -583,9 +646,6 @@ def main():
 
     # Add a handler for users leaving the group
     application.add_handler(MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, user_left_group))
-
-    # Message handler for 'Galactus' keyword
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, daily_curse_by_galactus))
 
     # Run the periodic task every 30 minutes to check for tier list updates
     job_queue = application.job_queue
