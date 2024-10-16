@@ -387,7 +387,6 @@ async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> N
             if random_value < 0.25:
                 # 25% chance to roast the user
                 await roast_user(update, context)
-                await update.message.delete()
 
             else:
                 # Default response: "Banido!" and send the Galactus GIF
