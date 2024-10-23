@@ -192,10 +192,14 @@ async def check_for_update(context: CallbackContext):
             reply_markup = get_decks_keyboard()
 
             # Notify all users whose chat IDs are persisted
-            if chat_ids:
-                logger.info(f"Notifying {len(chat_ids)} chat(s)")
-
-                for chat_id in chat_ids:
+            chats = load_chat_ids()
+            if not chats:
+                logger.warning("No chats to notify meta changes.")
+                return
+            
+            for chat in chats:
+                chat_id = chat.get("chat_id")
+                if chat_id is not None:
                     try:
                         await context.bot.send_message(
                             chat_id=chat_id,
@@ -205,8 +209,6 @@ async def check_for_update(context: CallbackContext):
                         logger.info(f"Message sent to chat {chat_id}")
                     except Exception as e:
                         logger.error(f"Failed to send message to chat {chat_id}: {e}")
-            else:
-                logger.warning("No chats to notify.")
         else:
             logger.info(f"No update detected. Last updated date is still: {last_updated_date}")
     else:
@@ -376,22 +378,31 @@ async def roast_user(update: Update, context: CallbackContext) -> None:
 
 async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> None:
     # Ensure that update.message exists and has text before proceeding
+    message = update.message
     if update.message and update.message.text:
         message_text = update.message.text.lower()
 
         # Check if the message mentions "Galactus"
         if re.search(GALACTUS_PATTERN, message_text):
-            random_value = random.random()
-            print(f"Random value: {random_value}")  # Debugging
+            chat_id = message.chat.id
 
-            if random_value < 0.25:
-                # 25% chance to roast the user
-                await roast_user(update, context)
+            if str(chat_id) == str(GALACTUS_CHAT_ID):
+                logger.info(chat_id)
+                logger.info(GALACTUS_CHAT_ID)
 
+                random_value = random.random()
+                print(f"Random value: {random_value}")  # Debugging
+
+                if random_value < 0.25:
+                    # 25% chance to roast the user
+                    await roast_user(update, context)
+
+                else:
+                    # Default response: "Banido!" and send the Galactus GIF
+                    await update.message.reply_text("Banido!")
+                    await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GALACTUS_GIF_URL)
             else:
-                # Default response: "Banido!" and send the Galactus GIF
-                await update.message.reply_text("Banido!")
-                await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GALACTUS_GIF_URL)
+                logger.info(f"Received a message from chat_id {chat_id} which is not the specified GALACTUS_CHAT_ID.")
     else:
         logger.warning("Received an update without a message or text")
 
@@ -563,11 +574,20 @@ def schedule_link_jobs(job_queue: JobQueue, chat_name: str, chat_id: int):
 
 async def galactus_reply(update: Update, context: CallbackContext):
     message = update.message
+    
+    # Check if the message is None (i.e., this is not a message update)
+    if message is None:
+        logger.error("Received an update with no message.")
+        return  # Stop execution if there is no message
+
     chat_id = message.chat.id
     user_message = message.text
 
     # Proceed only if the message is in the specified chat
-    if str(chat_id) == GALACTUS_CHAT_ID:
+    if str(chat_id) == str(GALACTUS_CHAT_ID):
+        logger.info(chat_id)
+        logger.info(GALACTUS_CHAT_ID)
+
         # Check if the message is a reply to the bot's message
         is_reply_to_bot = (
             message.reply_to_message and
@@ -610,6 +630,9 @@ async def galactus_reply(update: Update, context: CallbackContext):
             except Exception as e:
                 logger.error(f"Erro ao gerar resposta do Galactus: {e}")
                 await message.reply_text("Até Galactus comete erros...")
+
+    else:
+        logger.info(f"Received a message from chat_id {chat_id} which is not the specified GALACTUS_CHAT_ID.")
 
 # Add the job scheduling to the main function
 def main():
