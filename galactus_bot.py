@@ -387,9 +387,6 @@ async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> N
             chat_id = message.chat.id
 
             if str(chat_id) == str(GALACTUS_CHAT_ID):
-                logger.info(chat_id)
-                logger.info(GALACTUS_CHAT_ID)
-
                 random_value = random.random()
                 print(f"Random value: {random_value}")  # Debugging
 
