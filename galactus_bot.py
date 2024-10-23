@@ -585,9 +585,6 @@ async def galactus_reply(update: Update, context: CallbackContext):
 
     # Proceed only if the message is in the specified chat
     if str(chat_id) == str(GALACTUS_CHAT_ID):
-        logger.info(chat_id)
-        logger.info(GALACTUS_CHAT_ID)
-
         # Check if the message is a reply to the bot's message
         is_reply_to_bot = (
             message.reply_to_message and
