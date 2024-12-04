@@ -69,11 +69,11 @@ GALACTUS_PATTERN = re.compile(r'''
         g\s*           # 'g' with optional spaces
         [a@4áàâãäå*]\s*  # 'a' with accented characters and creative variations
         l\s*           # 'l' with optional spaces
-        [a@4qáàâãäå*]\s*    # 'a' with accented characters, '@', '4', 'q', '#' with optional spaces
+        [a@4qáàâãäå*]\s*    # 'a' with accented characters, '@', '4', 'q', '*' with optional spaces
         [cç]?\s*       # Optional 'c' or 'ç', with optional spaces (for 'galatus')
-        [t7]\s*        # 't' or '7' with optional spaces
-        [uúùûü*]\s*    # 'u' with accented characters or '*' with optional spaces
-        [s$z]\s*       # 's', 'z', or '$' with optional spaces
+        [t7]?\s*       # Optional 't' or '7' with optional spaces (to allow for 'galacta')
+        [uúùûü*]?\s*   # Optional 'u' with accented characters or '*' with optional spaces (to allow for 'galacta')
+        [s$z]?\s*      # Optional 's', 'z', or '$' with optional spaces (to allow for 'galacta')
         |              # OR
         g[a-z@4qáàâãäå]l[a-z@4qáàâãäå]*t[aoõã]*o  # Handle variations like 'galatão', 'galaquitus', 'galatã'
         |              # OR
@@ -98,6 +98,8 @@ GALACTUS_PATTERN = re.compile(r'''
         galatus        # Specifically capture 'galatus'
         |              # OR
         galaquitus     # Specifically capture 'galaquitus'
+        |              # OR
+        galacta        # Specifically capture 'galacta'
     )                  # End group
     \b                 # Word boundary
 ''', re.VERBOSE | re.IGNORECASE)
