@@ -504,7 +504,7 @@ def schedule_link_jobs(job_queue: JobQueue, chat_name: str, chat_id: int):
 
 async def galactus_reply(update: Update, context: CallbackContext):
     message = update.message
-
+    
     if message is None:
         logger.error("Received an update with no message.")
         return
@@ -512,55 +512,51 @@ async def galactus_reply(update: Update, context: CallbackContext):
     chat_id = message.chat.id
     user_message = message.text
 
-    if str(chat_id) == str(GALACTUS_CHAT_ID):
-        is_reply_to_this_bot = (
-            message.reply_to_message and
-            message.reply_to_message.from_user and
-            message.reply_to_message.from_user.is_bot and
-            (message.reply_to_message.from_user.id == context.bot.id)
-        )
+    is_reply_to_this_bot = (
+        message.reply_to_message 
+        and message.reply_to_message.from_user 
+        and message.reply_to_message.from_user.is_bot 
+        and (message.reply_to_message.from_user.id == context.bot.id)
+    )
 
-        is_bot_mentioned = False
-        if message.entities:
-            for entity in message.entities:
-                if entity.type == 'mention':
-                    mentioned_username = message.text[entity.offset:entity.offset + entity.length]
-                    if mentioned_username.lower() == f'@{context.bot.username.lower()}':
-                        is_bot_mentioned = True
-                        break
-                elif entity.type == 'text_mention':
-                    if entity.user and (entity.user.id == context.bot.id):
-                        is_bot_mentioned = True
-                        break
+    is_bot_mentioned = False
+    if message.entities:
+        for entity in message.entities:
+            if entity.type == 'mention':
+                mentioned_username = message.text[entity.offset:entity.offset + entity.length]
+                if mentioned_username.lower() == f'@{context.bot.username.lower()}':
+                    is_bot_mentioned = True
+                    break
+            elif entity.type == 'text_mention':
+                if entity.user and (entity.user.id == context.bot.id):
+                    is_bot_mentioned = True
+                    break
 
-        if is_reply_to_this_bot or is_bot_mentioned:
-            try:
-                prompt = (
-                    f"Imite Galactus em uma conversa. Responda à seguinte mensagem "
-                    f"com a personalidade e o tom de Galactus:\nMensagem: {user_message}"
-                )
+    if is_reply_to_this_bot or is_bot_mentioned:
+        try:
+            prompt = (
+                f"Imite Galactus em uma conversa. Responda à seguinte mensagem "
+                f"com a personalidade e o tom de Galactus:\nMensagem: {user_message}"
+            )
 
-                response = await client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
-                        {"role": "system", "content": "Você é Galactus, o Devorador de Mundos."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    max_tokens=150
-                )
+            response = await client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "Você é Galactus, o Devorador de Mundos."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=150
+            )
 
-                galactus_response = response.choices[0].message.content
-                await context.bot.send_message(chat_id=chat_id, text=galactus_response)
+            galactus_response = response.choices[0].message.content
 
-            except Exception as e:
-                logger.error(f"Erro ao gerar resposta do Galactus: {e}")
-                await message.reply_text("Até Galactus comete erros...")
-        else:
-            logger.info("Message not directed to the bot. Doing nothing.")
+            await context.bot.send_message(chat_id=chat_id, text=galactus_response)
+
+        except Exception as e:
+            logger.error(f"Erro ao gerar resposta do Galactus: {e}")
+            await message.reply_text("Até Galactus comete erros...")
     else:
-        logger.info(f"Received a message from chat_id {chat_id} which is not the specified GALACTUS_CHAT_ID.")
-
-mention_filter = filters.Entity("mention") | filters.Entity("text_mention")
+        logger.info("Message not directed to the bot. Doing nothing.")
 
 def main():
     print("Starting bot...")
@@ -577,7 +573,7 @@ def main():
 
     application.add_handler(MessageHandler(galactus_filter, daily_curse_by_galactus))
 
-    application.add_handler(MessageHandler(mention_filter, galactus_reply))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, galactus_reply))
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("decks", decks))
