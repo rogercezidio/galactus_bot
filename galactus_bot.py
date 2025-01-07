@@ -1,6 +1,6 @@
 import os
 import re
-import telegram  # <-- Make sure to import the telegram module
+import telegram 
 import json
 import time
 import base64
@@ -14,18 +14,15 @@ from datetime import time as dt_time
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, JobQueue, JobQueue
 
-# Enable logging to debug if needed
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-# Set your OpenAI API key
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Get the bot token from an environment variable
 TOKEN = os.getenv('BOT_TOKEN')
-print(f"Bot Token: {TOKEN}")  # Debugging: Check if the token is being retrieved
+print(f"Bot Token: {TOKEN}")  
 
 if TOKEN is None:
     print("Error: BOT_TOKEN environment variable is not set.")
@@ -36,18 +33,14 @@ if GALACTUS_CHAT_ID is None:
     logger.error("GALACTUS_CHAT_ID environment variable is not set.")
     exit(1)
 
-# Dictionary to store the last execution time for each chat
 chat_cooldowns = {}
-# Global dictionary to track user ids based on username
 last_updated_date = None
-# Set to store chat IDs
 chat_ids = set()
 
-# Cooldown time in seconds (e.g., 10 seconds)
 COOLDOWN_TIME = 60
 RANK_FILE_PATH = '/app/data/rankings.json'
 DECK_LIST_URL = 'https://marvelsnapzone.com/tier-list/'
-UPDATE_FILE_PATH = '/app/data/last_update.txt'  # Make sure this matches the volume mount path
+UPDATE_FILE_PATH = '/app/data/last_update.txt'  
 CHAT_IDS_FILE_PATH = '/app/data/chat_ids.json'
 USER_IDS_FILE_PATH = '/app/data/user_ids.json'
 GALACTUS_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2Z4amt5dTVlYWEycmZ4bjJ1MzIwemViOTBlcGN1eXVkMXcxcXZzbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7QL0aLRbHtAyc/giphy.gif"
@@ -64,44 +57,44 @@ Proibido:
 """
 
 GALACTUS_PATTERN = re.compile(r'''
-    \b                 # Word boundary
-    (                  # Begin group
-        g\s*           # 'g' with optional spaces
-        [a@4áàâãäå*]\s*  # 'a' with accented characters and creative variations
-        l\s*           # 'l' with optional spaces
-        [a@4qáàâãäå*]\s*    # 'a' with accented characters, '@', '4', 'q', '*' with optional spaces
-        [cç]?\s*       # Optional 'c' or 'ç', with optional spaces (for 'galatus')
-        [t7]?\s*       # Optional 't' or '7' with optional spaces (to allow for 'galacta')
-        [uúùûü*]?\s*   # Optional 'u' with accented characters or '*' with optional spaces (to allow for 'galacta')
-        [s$z]?\s*      # Optional 's', 'z', or '$' with optional spaces (to allow for 'galacta')
-        |              # OR
-        g[a-z@4qáàâãäå]l[a-z@4qáàâãäå]*t[aoõã]*o  # Handle variations like 'galatão', 'galaquitus', 'galatã'
-        |              # OR
-        g[a4]l[a4]ctus # Handle variations like 'g4l4ctus'
-        |              # OR
-        g[a4]l[a4]k[t7]us # Handle 'galaktus' variations with 'k'
-        |              # OR
-        ギャラクタス     # Japanese characters for 'Galactus'
-        |              # OR
-        갈락투스         # Korean characters for 'Galactus'
-        |              # OR
-        Галактус       # Cyrillic (Russian) for 'Galactus'
-        |              # OR
-        جالكتوس        # Arabic for 'Galactus'
-        |              # OR
-        银河吞噬者       # Chinese for 'Galactus' (literally 'Galactic Devourer')
-        |              # OR
-        गैलैक्टस          # Hindi for 'Galactus'
-        |              # OR
-        גלקטוס         # Hebrew for 'Galactus'
-        |              # OR
-        galatus        # Specifically capture 'galatus'
-        |              # OR
-        galaquitus     # Specifically capture 'galaquitus'
-        |              # OR
-        galacta        # Specifically capture 'galacta'
-    )                  # End group
-    \b                 # Word boundary
+    \b                 
+    (                  
+        g\s*           
+        [a@4áàâãäå*]\s*  
+        l\s* 
+        [a@4qáàâãäå*]\s*    
+        [cç]?\s*      
+        [t7]?\s*       
+        [uúùûü*]?\s*   
+        [s$z]?\s*      
+        |
+        g[a-z@4qáàâãäå]l[a-z@4qáàâãäå]*t[aoõã]*o 
+        |           
+        g[a4]l[a4]ctus 
+        |            
+        g[a4]l[a4]k[t7]us 
+        |              
+        ギャラクタス     
+        |              
+        갈락투스         
+        |              
+        Галактус      
+        |              
+        جالكتوس        
+        |              
+        银河吞噬者       
+        |              
+        गैलैक्टस          
+        |             
+        גלקטוס         
+        |             
+        galatus        
+        |              
+        galaquitus     
+        |              
+        galacta        
+    )                  
+    \b                 
 ''', re.VERBOSE | re.IGNORECASE)
 
 def load_chat_ids():
@@ -124,10 +117,8 @@ def load_chat_ids():
 def save_chat_ids(chat_ids):
     """Save chat IDs and names to the JSON file."""
     try:
-        # Prepare the data to be saved
         data = {"chats": chat_ids}
 
-        # Write the data to the JSON file
         with open(CHAT_IDS_FILE_PATH, 'w') as file:
             json.dump(data, file, indent=4)
         
@@ -135,7 +126,6 @@ def save_chat_ids(chat_ids):
     except Exception as e:
         logger.error(f"Failed to save chat IDs: {e}")
 
-# Function to load the last updated date from a file
 def load_last_updated_date():
     global last_updated_date
     if os.path.exists(UPDATE_FILE_PATH):
@@ -145,7 +135,6 @@ def load_last_updated_date():
     else:
         logger.info("No previous update date found.")
 
-# Function to save the updated date to a file
 def save_last_updated_date(date):
     global last_updated_date
     last_updated_date = date
@@ -160,14 +149,11 @@ def fetch_updated_date():
         
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        # Search for the <figcaption> element
         figcaption_element = soup.find('figcaption')
         
         if figcaption_element and 'Updated:' in figcaption_element.get_text():
-            # Extract the date, which should be within the text following "Updated:"
             updated_text = figcaption_element.get_text(strip=True)
             
-            # The date is expected to be after "Updated:", so split and strip it
             updated_date = updated_text.split("Updated:")[1].strip()
             
             return updated_date
@@ -178,7 +164,6 @@ def fetch_updated_date():
         print(f"Error fetching the updated date: {e}")
         return None
 
-# Function to check if the tier list is updated and notify users
 async def check_for_update(context: CallbackContext):
     global last_updated_date
     current_date = fetch_updated_date()
@@ -190,10 +175,8 @@ async def check_for_update(context: CallbackContext):
             logger.info(f"Tier list updated! New date: {current_date}")
             save_last_updated_date(current_date)
 
-            # Create an inline button that links to the updated tier list
             reply_markup = get_decks_keyboard()
 
-            # Notify all users whose chat IDs are persisted
             chats = load_chat_ids()
             if not chats:
                 logger.warning("No chats to notify meta changes.")
@@ -216,7 +199,6 @@ async def check_for_update(context: CallbackContext):
     else:
         logger.error("Failed to fetch updated date.")
 
-# Function to fetch deck list and create inline keyboard
 def get_decks_keyboard():
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0'
@@ -235,7 +217,6 @@ def get_decks_keyboard():
                     deck_name = columns[1].text.strip()
                     link_tag = columns[1].find('a')
                     deck_link = link_tag['href'] if link_tag else None
-                    # Create an inline button for each deck
                     keyboard.append([
                         InlineKeyboardButton(f"{tier}: {deck_name}", url=deck_link)
                     ])
@@ -245,34 +226,27 @@ def get_decks_keyboard():
     else:
         return None
     
-# Updated start command handler to also schedule the link jobs
 async def start(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     chat_name = update.effective_chat.title or update.effective_chat.first_name
-    # Load existing chat IDs
     existing_chats = load_chat_ids()
 
-    # Check if the chat ID already exists
     if not any(chat['chat_id'] == chat_id for chat in existing_chats):
-        # Add the new chat ID and name
         existing_chats.append({"name": chat_name, "chat_id": chat_id})
         logger.info(f"New chat ID added: {chat_id} ({chat_name})")
 
-        # Persist chat IDs to file
         save_chat_ids(existing_chats)
 
     await update.message.reply_text('Olá! Eu sou o Galactus Bot. Estou ouvindo...')
 
 async def decks(update: Update, context: CallbackContext) -> None:
-    global last_updated_date  # Ensure we're accessing the global last updated date
+    global last_updated_date  
 
     reply_markup = get_decks_keyboard()
 
     if last_updated_date:
-        # If we have the last updated date, include it in the message
         message = f"Selecione um deck para visualizar:\n\nÚltima atualização: {last_updated_date}"
     else:
-        # If no date is available, indicate that the date is unknown
         message = "Selecione um deck para visualizar:\n\nÚltima atualização: Data desconhecida"
 
     if reply_markup:
@@ -283,18 +257,15 @@ async def decks(update: Update, context: CallbackContext) -> None:
 async def get_user_profile_photo(user_id, bot):
     photos = await bot.get_user_profile_photos(user_id)
     if photos.total_count > 0:
-        # Get the largest size photo
         file_id = photos.photos[0][-1].file_id
         file = await bot.get_file(file_id)
         file_path = os.path.join(Path(__file__).parent, f"{user_id}_photo.jpg")
         
-        # Download the file using the correct async method
         await file.download_to_drive(file_path)
         
         return file_path
     return None
 
-# Function to encode the image
 def encode_image(image_path):
     try:
         with open(image_path, "rb") as image_file:
@@ -305,12 +276,10 @@ def encode_image(image_path):
 
 async def generate_galactus_roast(user_first_name, profile_photo_path):
     try:
-        # Encode the user's profile picture to base64
         base64_image = encode_image(profile_photo_path)
         if not base64_image:
             raise ValueError("Erro ao codificar a imagem do perfil.")
 
-        # Step 1: Describe the image
         payload = {
             "model": "gpt-4o-mini",
             "messages": [
@@ -338,13 +307,11 @@ async def generate_galactus_roast(user_first_name, profile_photo_path):
             headers={"Content-Type": "application/json", "Authorization": f"Bearer {client.api_key}"},
             json=payload
         )
-        response.raise_for_status()  # Check for HTTP errors
+        response.raise_for_status()  
         image_description = response.json()['choices'][0]['message']['content']
 
-        # Step 2: Use the description to generate the roast
         roast_prompt = f"Galactus está prestes a humilhar um humano chamado {user_first_name}. Aqui está a descrição da imagem de perfil desse usuário: {image_description}. Escreva um insulto humilhante, sarcástico e devastador baseado nessa descrição."
 
-        # Generate the roast text using the chat API
         roast_response = await client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "Você é Galactus, o devorador de mundos. Humilhe este humano de forma curta e grossa como só Galactus pode, mencionando seu nome e usando a imagem descrita."},
@@ -355,49 +322,40 @@ async def generate_galactus_roast(user_first_name, profile_photo_path):
 
         roast_text = roast_response.choices[0].message.content
 
-        return roast_text, None  # Ensure exactly two values are returned
+        return roast_text, None 
 
     except Exception as e:
         logging.error(f"Erro ao gerar o insulto de Galactus: {e}")
         return f"{user_first_name}, você nem é digno de uma humilhação do devorador de mundos.", None
 
-# Function to roast the user
 async def roast_user(update: Update, context: CallbackContext) -> None:
-    user_first_name = update.message.from_user.first_name  # Get the user's first name
+    user_first_name = update.message.from_user.first_name  
     user_id = update.message.from_user.id
 
-    # Get the user's profile photo (if available)
     profile_photo_path = await get_user_profile_photo(user_id, context.bot)
     
-    # Generate the roast with the user's name and photo
-    roast_message, _ = await generate_galactus_roast(user_first_name, profile_photo_path)  # Generate the roast
+    roast_message, _ = await generate_galactus_roast(user_first_name, profile_photo_path)  
 
-    # Send the roast message
     await update.message.reply_text(f"{roast_message}")
         
-    # Optionally, send a Galactus GIF for effect
     await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GALACTUS_GIF_URL)
 
 async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> None:
-    # Ensure that update.message exists and has text before proceeding
     message = update.message
     if update.message and update.message.text:
         message_text = update.message.text.lower()
 
-        # Check if the message mentions "Galactus"
         if re.search(GALACTUS_PATTERN, message_text):
             chat_id = message.chat.id
 
             if str(chat_id) == str(GALACTUS_CHAT_ID):
                 random_value = random.random()
-                print(f"Random value: {random_value}")  # Debugging
+                print(f"Random value: {random_value}")
 
                 if random_value < 0.25:
-                    # 25% chance to roast the user
                     await roast_user(update, context)
 
                 else:
-                    # Default response: "Banido!" and send the Galactus GIF
                     await update.message.reply_text("Banido!")
                     await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GALACTUS_GIF_URL)
             else:
@@ -405,35 +363,27 @@ async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> N
     else:
         logger.warning("Received an update without a message or text")
 
-# Function to handle the /spotlight command with a chat-based cooldown
 async def send_spotlight_link(update: Update, context: CallbackContext) -> None:
-    chat_id = update.effective_chat.id  # Get the chat's unique ID
-    current_time = time.time()  # Get the current time in seconds
+    chat_id = update.effective_chat.id 
+    current_time = time.time()
 
-    # Check if the chat is on cooldown
     if chat_id in chat_cooldowns:
         last_execution_time = chat_cooldowns[chat_id]
         elapsed_time = current_time - last_execution_time
 
         if elapsed_time < COOLDOWN_TIME:
-            # Cooldown still active, inform the user
             remaining_time = COOLDOWN_TIME - elapsed_time
-            #await update.message.reply_text(f"The command is on cooldown in this chat. Please wait {int(remaining_time)}>
             return
 
-    # Update the chat's last execution time
     chat_cooldowns[chat_id] = current_time
 
-    # Create an inline keyboard with a button linking to the spotlight caches page
     keyboard = [
         [InlineKeyboardButton("Baús de Destaque", url="https://marvelsnapzone.com/spotlight-caches/")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Send the message with the inline keyboard button
     await update.message.reply_text("Clique no botão abaixo para ver os próximos baús de destaque:", reply_markup=reply_markup)
 
-# Function to generate the welcome message using OpenAI
 async def generate_galactus_welcome(user_first_name):
     try:
         prompt = f"Galactus está prestes a receber um novo humano no grupo de jogadores de Marvel Snap. O nome do humano é {user_first_name}. Dê boas-vindas a ele, mas de forma amigável e poderosa, como só Galactus poderia fazer. Não se esqueça de mencioná-lo pelo nome."
@@ -451,34 +401,26 @@ async def generate_galactus_welcome(user_first_name):
         logger.error(f"Erro ao gerar a mensagem de boas-vindas do Galactus: {e}")
         return f"{user_first_name}, você foi notado por Galactus, o devorador de mundos. Bem-vindo, humano insignificante!"
 
-# Function to send welcome message when new members join (either by themselves or added by an admin)
 async def welcome_user(update: Update, context: CallbackContext) -> None:
-    # Iterate over all new chat members (handles cases where multiple members join)
     for new_user in update.message.new_chat_members:
         user_first_name = new_user.first_name
 
-        # Generate the welcome message from Galactus
         welcome_message = await generate_galactus_welcome(user_first_name)
 
-        # Complete welcome message with group rules
         complete_message = f"{welcome_message}\n\nAqui estão as regras do grupo:\n{GROUP_RULES}"
 
-        # Send the welcome message to the chat
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=complete_message
         )
     
-        # Optionally, send a Galactus GIF for added effect
         await context.bot.send_animation(
             chat_id=update.effective_chat.id, 
             animation=GALACTUS_WELCOME_GIF_URL
         )
 
-# Function to generate the farewell message using OpenAI
 async def generate_galactus_farewell(user_first_name):
     try:
-        # Create the prompt for Galactus-style farewell message
         prompt = f"Galactus está prestes a se despedir de um humano chamado {user_first_name}, que acabou de sair de um grupo. Escreva uma mensagem sarcástica e devastadora de despedida."
 
         response = await client.chat.completions.create(
@@ -494,27 +436,21 @@ async def generate_galactus_farewell(user_first_name):
         logger.error(f"Erro ao gerar a mensagem de despedida do Galactus: {e}")
         return f"{user_first_name}, você acha que pode escapar da ira de Galactus? Insignificante!"
 
-# Function to handle when a user leaves the group
 async def user_left_group(update: Update, context: CallbackContext) -> None:
-    # Get the name of the user who left
     user_first_name = update.message.left_chat_member.first_name
 
-    # Generate the farewell message using OpenAI
     farewell_message = await generate_galactus_farewell(user_first_name)
 
-    # Send the farewell message to the group
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text=farewell_message
     )
 
-    # Optionally, send a Galactus GIF for effect
     await context.bot.send_animation(
         chat_id=update.effective_chat.id,
         animation=GALACTUS_GIF_URL
     )
 
-# Function to send the link
 async def send_scheduled_link(context: CallbackContext, chat_id: int) -> None:
     link = "https://pay-va.nvsgames.com/topup/262304/"
     gif_url = "https://p19-marketing-va.bytedgame.com/obj/g-marketing-assets-va/2024_07_25_11_34_21/guide_s507015.gif"
@@ -527,16 +463,13 @@ async def send_scheduled_link(context: CallbackContext, chat_id: int) -> None:
         "Clique agora, ou seja esquecido!"
     )
 
-    # Create an inline keyboard with the link
     keyboard = [
         [InlineKeyboardButton("Girar a roleta cósmica", url=link)]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Send the GIF
     await context.bot.send_animation(chat_id=chat_id, animation=gif_url)
 
-    # Send the message with the inline keyboard
     await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup, parse_mode='Markdown')
 
 def schedule_link_jobs_for_all_chats(job_queue: JobQueue):
@@ -559,56 +492,53 @@ def schedule_link_jobs(job_queue: JobQueue, chat_name: str, chat_id: int):
     async def send_link_wrapper(context: CallbackContext) -> None:
         await send_scheduled_link(context, chat_id)
 
-    # Create a unique job name for each chat ID
     job_name = f"send_link_wrapper_{chat_id}"
     logger.info(f"Scheduling job for chat '{chat_name}' with chat_id: {chat_id} and job_name: {job_name}")
 
-    # Schedule the link sending for Tuesday, Friday, and Sunday at 4 PM
     job_queue.run_daily(
-        send_link_wrapper,  # Use the wrapper function# Use partial to pass chat_id
+        send_link_wrapper,  
         time=dt_time(hour=20, minute=00),
-        days=(2, 5, 0),  # 1=Tuesday, 4=Friday, 6=Sunday
+        days=(2, 5, 0),
         name=job_name
     )
 
 async def galactus_reply(update: Update, context: CallbackContext):
     message = update.message
-    
-    # Check if the message is None (i.e., this is not a message update)
+
     if message is None:
         logger.error("Received an update with no message.")
-        return  # Stop execution if there is no message
+        return
 
     chat_id = message.chat.id
     user_message = message.text
 
-    # Proceed only if the message is in the specified chat
     if str(chat_id) == str(GALACTUS_CHAT_ID):
-        # Check if the message is a reply to the bot's message
-        is_reply_to_bot = (
+        is_reply_to_this_bot = (
             message.reply_to_message and
             message.reply_to_message.from_user and
-            message.reply_to_message.from_user.is_bot
+            message.reply_to_message.from_user.is_bot and
+            (message.reply_to_message.from_user.id == context.bot.id)
         )
 
-        # Check if the bot is mentioned in the message
         is_bot_mentioned = False
         if message.entities:
             for entity in message.entities:
                 if entity.type == 'mention':
                     mentioned_username = message.text[entity.offset:entity.offset + entity.length]
-                    if mentioned_username == f'@{context.bot.username}':
+                    if mentioned_username.lower() == f'@{context.bot.username.lower()}':
                         is_bot_mentioned = True
                         break
                 elif entity.type == 'text_mention':
-                    if entity.user and entity.user.id == context.bot.id:
+                    if entity.user and (entity.user.id == context.bot.id):
                         is_bot_mentioned = True
                         break
 
-        # Proceed only if the message is a reply to the bot or mentions the bot
-        if is_reply_to_bot or is_bot_mentioned:
+        if is_reply_to_this_bot or is_bot_mentioned:
             try:
-                prompt = f"Imite Galactus em uma conversa. Responda à seguinte mensagem com a personalidade e o tom de Galactus, você não precisa se apresentar, todos te conhecem:\nMensagem: {user_message}"
+                prompt = (
+                    f"Imite Galactus em uma conversa. Responda à seguinte mensagem "
+                    f"com a personalidade e o tom de Galactus:\nMensagem: {user_message}"
+                )
 
                 response = await client.chat.completions.create(
                     model="gpt-3.5-turbo",
@@ -620,56 +550,46 @@ async def galactus_reply(update: Update, context: CallbackContext):
                 )
 
                 galactus_response = response.choices[0].message.content
-
-                # Send Galactus' reply back to the user
                 await context.bot.send_message(chat_id=chat_id, text=galactus_response)
+
             except Exception as e:
                 logger.error(f"Erro ao gerar resposta do Galactus: {e}")
                 await message.reply_text("Até Galactus comete erros...")
-
+        else:
+            logger.info("Message not directed to the bot. Doing nothing.")
     else:
         logger.info(f"Received a message from chat_id {chat_id} which is not the specified GALACTUS_CHAT_ID.")
 
-# Add the job scheduling to the main function
+mention_filter = filters.Entity("mention") | filters.Entity("text_mention")
+
 def main():
     print("Starting bot...")
 
-    # Load the last known updated date from file
     load_last_updated_date()
 
-    # Load chat IDs from file
     load_chat_ids()
 
-    # Create the application
     application = Application.builder().token(os.getenv("BOT_TOKEN")).build()
 
     schedule_link_jobs_for_all_chats(application.job_queue)
 
-    # Add the message handler for Galactus' specific chat replies
     galactus_filter = filters.TEXT & (~filters.COMMAND) & (filters.Regex(GALACTUS_PATTERN))
 
-    # Message handler for 'Galactus' keyword
     application.add_handler(MessageHandler(galactus_filter, daily_curse_by_galactus))
 
-    # Add the message handler for Galactus replies
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, galactus_reply))
+    application.add_handler(MessageHandler(mention_filter, galactus_reply))
 
-    # Command handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("decks", decks))
     application.add_handler(CommandHandler("spotlight", send_spotlight_link))
 
-    # Handler for welcoming new users
     application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome_user))
 
-    # Add a handler for users leaving the group
     application.add_handler(MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, user_left_group))
 
-    # Run the periodic task every 30 minutes to check for tier list updates
     job_queue = application.job_queue
     job_queue.run_repeating(check_for_update, interval=1800, first=10)
 
-    # Start the bot
     application.run_polling()
     print("Bot is polling...")
 
