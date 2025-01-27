@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from openai import AsyncOpenAI
 from datetime import time as dt_time
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, JobQueue, JobQueue
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, JobQueue
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 TOKEN = os.getenv('BOT_TOKEN')
-print(f"Bot Token: {TOKEN}")  
 
 if TOKEN is None:
     print("Error: BOT_TOKEN environment variable is not set.")
@@ -498,7 +497,7 @@ def schedule_link_jobs(job_queue: JobQueue, chat_name: str, chat_id: int):
     job_queue.run_daily(
         send_link_wrapper,  
         time=dt_time(hour=20, minute=00),
-        days=(2, 5, 0),
+        days=(1, 2, 3, 4, 5, 6, 0),
         name=job_name
     )
 
@@ -559,7 +558,7 @@ async def galactus_reply(update: Update, context: CallbackContext):
         logger.info("Message not directed to the bot. Doing nothing.")
 
 def main():
-    print("Starting bot...")
+    logger.info("Starting bot...")
 
     load_last_updated_date()
 
