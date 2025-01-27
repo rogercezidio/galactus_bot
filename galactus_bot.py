@@ -24,7 +24,7 @@ client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 TOKEN = os.getenv('BOT_TOKEN')
 
 if TOKEN is None:
-    print("Error: BOT_TOKEN environment variable is not set.")
+    logger.info("Error: BOT_TOKEN environment variable is not set.")
     exit(1)
 
 GALACTUS_CHAT_ID = os.getenv("GALACTUS_CHAT_ID")
@@ -157,10 +157,10 @@ def fetch_updated_date():
             
             return updated_date
         else:
-            print("Could not find the updated date element.")
+            logger.info("Could not find the updated date element.")
             return None
     except Exception as e:
-        print(f"Error fetching the updated date: {e}")
+        logger.info(f"Error fetching the updated date: {e}")
         return None
 
 async def check_for_update(context: CallbackContext):
@@ -349,7 +349,7 @@ async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> N
 
             if str(chat_id) == str(GALACTUS_CHAT_ID):
                 random_value = random.random()
-                print(f"Random value: {random_value}")
+                logger.info(f"Random value: {random_value}")
 
                 if random_value < 0.25:
                     await roast_user(update, context)
@@ -586,7 +586,7 @@ def main():
     job_queue.run_repeating(check_for_update, interval=1800, first=10)
 
     application.run_polling()
-    print("Bot is polling...")
+    logger.info("Bot is polling...")
 
 if __name__ == '__main__':
     main()
