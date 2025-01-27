@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from openai import AsyncOpenAI
 from datetime import time as dt_time
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, JobQueue, JobQueue
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, JobQueue
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -22,10 +22,9 @@ logger = logging.getLogger(__name__)
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 TOKEN = os.getenv('BOT_TOKEN')
-print(f"Bot Token: {TOKEN}")  
 
 if TOKEN is None:
-    print("Error: BOT_TOKEN environment variable is not set.")
+    logger.info("Error: BOT_TOKEN environment variable is not set.")
     exit(1)
 
 GALACTUS_CHAT_ID = os.getenv("GALACTUS_CHAT_ID")
@@ -158,10 +157,10 @@ def fetch_updated_date():
             
             return updated_date
         else:
-            print("Could not find the updated date element.")
+            logger.info("Could not find the updated date element.")
             return None
     except Exception as e:
-        print(f"Error fetching the updated date: {e}")
+        logger.info(f"Error fetching the updated date: {e}")
         return None
 
 async def check_for_update(context: CallbackContext):
@@ -350,7 +349,7 @@ async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> N
 
             if str(chat_id) == str(GALACTUS_CHAT_ID):
                 random_value = random.random()
-                print(f"Random value: {random_value}")
+                logger.info(f"Random value: {random_value}")
 
                 if random_value < 0.25:
                     await roast_user(update, context)
@@ -498,7 +497,7 @@ def schedule_link_jobs(job_queue: JobQueue, chat_name: str, chat_id: int):
     job_queue.run_daily(
         send_link_wrapper,  
         time=dt_time(hour=20, minute=00),
-        days=(2, 5, 0),
+        days=(1, 2, 3, 4, 5, 6, 0),
         name=job_name
     )
 
@@ -559,7 +558,7 @@ async def galactus_reply(update: Update, context: CallbackContext):
         logger.info("Message not directed to the bot. Doing nothing.")
 
 def main():
-    print("Starting bot...")
+    logger.info("Starting bot...")
 
     load_last_updated_date()
 
@@ -587,7 +586,7 @@ def main():
     job_queue.run_repeating(check_for_update, interval=1800, first=10)
 
     application.run_polling()
-    print("Bot is polling...")
+    logger.info("Bot is polling...")
 
 if __name__ == '__main__':
     main()
