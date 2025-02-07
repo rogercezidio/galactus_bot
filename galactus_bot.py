@@ -103,7 +103,6 @@ GALACTUS_PATTERN = re.compile(r'''
 ''', re.VERBOSE | re.IGNORECASE)
 
 def load_chat_ids():
-    """Load chat IDs from the JSON file and return them as a list of dictionaries."""
     if not os.path.exists(CHAT_IDS_FILE_PATH):
         logger.warning(f"Chat ID file not found at {CHAT_IDS_FILE_PATH}")
         return []
@@ -120,7 +119,6 @@ def load_chat_ids():
 
 
 def save_chat_ids(chat_ids):
-    """Save chat IDs and names to the JSON file."""
     try:
         data = {"chats": chat_ids}
 
@@ -478,7 +476,6 @@ async def send_scheduled_link(context: CallbackContext, chat_id: int) -> None:
     await context.bot.send_message(chat_id=chat_id, text=message, reply_markup=reply_markup, parse_mode='Markdown')
 
 def schedule_link_jobs_for_all_chats(job_queue: JobQueue):
-    """Schedule the message for all chat IDs saved in the JSON file."""
     chats = load_chat_ids()
     if not chats:
         logger.info("No chat IDs found to schedule.")
@@ -493,7 +490,6 @@ def schedule_link_jobs_for_all_chats(job_queue: JobQueue):
             logger.warning(f"Missing chat_id for chat '{chat_name}'.")
 
 def schedule_link_jobs(job_queue: JobQueue, chat_name: str, chat_id: int):
-    """Schedules the link sending for a specific chat with a unique job name."""
     async def send_link_wrapper(context: CallbackContext) -> None:
         await send_scheduled_link(context, chat_id)
 
@@ -564,19 +560,14 @@ async def galactus_reply(update: Update, context: CallbackContext):
         logger.info("Message not directed to the bot. Doing nothing.")
 
 async def edited_message_handler(update: Update, context: CallbackContext) -> None:
-    # If it's an edited message, you have the updated text in update.edited_message.text
     if update.edited_message and update.edited_message.text:
         new_text = update.edited_message.text.lower()
 
-        # Check against your existing GALACTUS_PATTERN
         if re.search(GALACTUS_PATTERN, new_text):
             chat_id = update.edited_message.chat.id
-            # If you need to compare with GALACTUS_CHAT_ID, you can do it here:
             if str(chat_id) == str(GALACTUS_CHAT_ID):
-                # Just like your daily_curse_by_galactus function:
                 random_value = random.random()
                 if random_value < 0.25:
-                    # If you want to roast the user, call your roast function
                     await roast_user(update, context)
                 else:
                     await update.edited_message.reply_text(
@@ -589,7 +580,6 @@ async def edited_message_handler(update: Update, context: CallbackContext) -> No
                         animation=GALACTUS_GIF_URL
                     )
             else:
-                # If you're ignoring edits in other chats, just log or do nothing
                 logger.info(
                     f"Edited message contains 'Galactus' but from chat_id {chat_id}, not GALACTUS_CHAT_ID."
                 )
