@@ -70,6 +70,10 @@ GALACTUS_PATTERN = re.compile(r'''
         g[a-z@4qáàâãäå]l[a-z@4qáàâãäå]*t[aoõã]*o 
         |           
         g[a4]l[a4]ctus 
+        |
+        g[a4][li][a4][ck]t[uv]s 
+        |                      
+        g[a4][li][a4][ck]t[uv]
         |            
         g[a4]l[a4]k[t7]us 
         |              
@@ -91,7 +95,9 @@ GALACTUS_PATTERN = re.compile(r'''
         |              
         galaquitus     
         |              
-        galacta        
+        galacta
+        |
+        gaIactus        
     )                  
     \b                 
 ''', re.VERBOSE | re.IGNORECASE)
