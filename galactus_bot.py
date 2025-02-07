@@ -55,55 +55,45 @@ Proibido:
 6 - Pirâmides financeiras ou afins.
 """
 
-GALACTUS_PATTERN = re.compile(r'''
-    \b                 
-    (                  
-        g\s*           
-        [a@4áàâãäå*]\s*  
-        l\s* 
-        [a@4qáàâãäå*]\s*    
-        [cç]?\s*      
-        [t7]?\s*       
-        [uúùûü*]?\s*   
-        [s$z]?\s*      
-        |
-        g[a-z@4qáàâãäå]l[a-z@4qáàâãäå]*t[aoõã]*o 
-        |           
-        g[a4]l[a4]ctus 
-        |
-        g[a4][li][a4][ck]t[uv]s 
-        |                      
-        g[a4][li][a4][ck]t[uv]
-        |            
-        g[a4]l[a4]k[t7]us 
-        |              
-        ギャラクタス     
-        |              
-        갈락투스         
-        |              
-        Галактус      
-        |              
-        جالكتوس        
-        |              
-        银河吞噬者       
-        |              
-        गैलैक्टस          
-        |             
-        גלקטוס         
-        |             
-        galatus        
-        |              
-        galaquitus     
-        |              
-        galacta
-        |
-        gaIactus
-        |
-        𝕘𝕒𝕝𝕒𝕔𝕥𝕦𝕤        
-    )                  
-    \b                 
-''', re.VERBOSE | re.IGNORECASE)
-
+GALACTUS_PATTERN = re.compile(r"""
+\b
+(
+    g\s*[a@4áàâãäå]+\s*l\s*[a@4áàâãäåq]+\s*[cç]?\s*[t7]?\s*[uúùûü]+\s*[s\$z]*
+    | 
+    g[a-z@4áàâãäå]*l[a-z@4áàâãäå]*t[aoõã]*o
+    |
+    g[a4]l[a4]ctus
+    | 
+    g[a4][li][a4][ck]t[uv]s
+    | 
+    g[a4][li][a4][ck]t[uv]
+    |  
+    g[a4]l[a4]k[t7]us
+    | 
+    gaIactus
+    | ギャラクタス     # Japanese
+    | 갈락투스         # Korean
+    | Галактус         # Russian
+    | جالكتوس         # Arabic
+    | 银河吞噬者       # Chinese
+    | गैलैक्टस         # Hindi
+    | גלקטוס          # Hebrew
+    | galatus
+    | galaquitus
+    | galacta
+    | 𝕘𝕒𝕝𝕒𝕔𝕥𝕦𝕤
+    | 
+    [gG\u1D400-\u1D7FF][\u0300-\u036F]*
+    [aA\u1D400-\u1D7FF][\u0300-\u036F]*
+    [lL\u1D400-\u1D7FF][\u0300-\u036F]*
+    [aA\u1D400-\u1D7FF][\u0300-\u036F]*
+    [cC\u1D400-\u1D7FF][\u0300-\u036F]*
+    [tT\u1D400-\u1D7FF][\u0300-\u036F]*
+    [uU\u1D400-\u1D7FF][\u0300-\u036F]*
+    [sS\u1D400-\u1D7FF][\u0300-\u036F]*
+)
+\b
+""", re.VERBOSE | re.IGNORECASE)
 def load_chat_ids():
     if not os.path.exists(CHAT_IDS_FILE_PATH):
         logger.warning(f"Chat ID file not found at {CHAT_IDS_FILE_PATH}")
