@@ -82,15 +82,7 @@ GALACTUS_PATTERN = re.compile(r"""
     | galaquitus
     | galacta
     | 𝕘𝕒𝕝𝕒𝕔𝕥𝕦𝕤
-    | 
-    [gG\u1D400-\u1D7FF][\u0300-\u036F]*
-    [aA\u1D400-\u1D7FF][\u0300-\u036F]*
-    [lL\u1D400-\u1D7FF][\u0300-\u036F]*
-    [aA\u1D400-\u1D7FF][\u0300-\u036F]*
-    [cC\u1D400-\u1D7FF][\u0300-\u036F]*
-    [tT\u1D400-\u1D7FF][\u0300-\u036F]*
-    [uU\u1D400-\u1D7FF][\u0300-\u036F]*
-    [sS\u1D400-\u1D7FF][\u0300-\u036F]*
+
 )
 \b
 """, re.VERBOSE | re.IGNORECASE)
