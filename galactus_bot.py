@@ -97,7 +97,9 @@ GALACTUS_PATTERN = re.compile(r'''
         |              
         galacta
         |
-        gaIactus        
+        gaIactus
+        |
+        𝕘𝕒𝕝𝕒𝕔𝕥𝕦𝕤        
     )                  
     \b                 
 ''', re.VERBOSE | re.IGNORECASE)
