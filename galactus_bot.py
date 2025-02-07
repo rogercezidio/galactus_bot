@@ -563,6 +563,37 @@ async def galactus_reply(update: Update, context: CallbackContext):
     else:
         logger.info("Message not directed to the bot. Doing nothing.")
 
+async def edited_message_handler(update: Update, context: CallbackContext) -> None:
+    # If it's an edited message, you have the updated text in update.edited_message.text
+    if update.edited_message and update.edited_message.text:
+        new_text = update.edited_message.text.lower()
+
+        # Check against your existing GALACTUS_PATTERN
+        if re.search(GALACTUS_PATTERN, new_text):
+            chat_id = update.edited_message.chat.id
+            # If you need to compare with GALACTUS_CHAT_ID, you can do it here:
+            if str(chat_id) == str(GALACTUS_CHAT_ID):
+                # Just like your daily_curse_by_galactus function:
+                random_value = random.random()
+                if random_value < 0.25:
+                    # If you want to roast the user, call your roast function
+                    await roast_user(update, context)
+                else:
+                    await update.edited_message.reply_text(
+                        "Banido! Ousaste tentar enganar o Devorador de Mundos, humano miserável?"
+                        "Tua insolência não passará impune nos domínios cósmicos de Galactus!"
+                        "BANIDO!"
+                    )
+                    await context.bot.send_animation(
+                        chat_id=chat_id, 
+                        animation=GALACTUS_GIF_URL
+                    )
+            else:
+                # If you're ignoring edits in other chats, just log or do nothing
+                logger.info(
+                    f"Edited message contains 'Galactus' but from chat_id {chat_id}, not GALACTUS_CHAT_ID."
+                )
+
 def main():
     logger.info("Starting bot...")
 
@@ -579,6 +610,10 @@ def main():
     application.add_handler(MessageHandler(galactus_filter, daily_curse_by_galactus))
 
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, galactus_reply))
+
+    application.add_handler(
+        MessageHandler(filters.UpdateType.EDITED_MESSAGE, edited_message_handler)
+    )
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("decks", decks))
