@@ -529,7 +529,7 @@ async def galactus_reply(update: Update, context: CallbackContext):
                     {"role": "system", "content": "Você é Galactus, o Devorador de Mundos, você está num grupo do Telegram e todo mundo no grupo sabe quem você é, não precisa se apresentar."},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=150
+                max_tokens=250
             )
 
             galactus_response = response.choices[0].message.content
