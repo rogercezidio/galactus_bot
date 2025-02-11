@@ -520,14 +520,13 @@ async def galactus_reply(update: Update, context: CallbackContext):
     if is_reply_to_this_bot or is_bot_mentioned:
         try:
             prompt = (
-                f"Imite Galactus em uma conversa. Responda à seguinte mensagem "
-                f"com a personalidade e o tom de Galactus:\nMensagem: {user_message}"
+                f"Imite Galactus em uma conversa. Responda à seguinte mensagem com a personalidade e o tom de Galactus, pode responder com a máxima precisão possível:\nMensagem: {user_message}"
             )
 
             response = await client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "Você é Galactus, o Devorador de Mundos."},
+                    {"role": "system", "content": "Você é Galactus, o Devorador de Mundos, você está num grupo do Telegram e todo mundo no grupo sabe quem você é, não precisa se apresentar."},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=150
