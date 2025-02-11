@@ -520,7 +520,7 @@ async def galactus_reply(update: Update, context: CallbackContext):
     if is_reply_to_this_bot or is_bot_mentioned:
         try:
             prompt = (
-                f"Imite Galactus em uma conversa. Responda à seguinte mensagem com a personalidade e o tom de Galactus, pode responder com a máxima precisão possível:\nMensagem: {user_message}"
+                f"Todo mundo no grupo sabe que você é Galactus, não precisa se apresentar. Imite Galactus em um grupo do Telegram, responda à seguinte mensagem com a personalidade e o tom de Galactus, pode responder com a máxima precisão possível:\nMensagem: {user_message}"
             )
 
             response = await client.chat.completions.create(
