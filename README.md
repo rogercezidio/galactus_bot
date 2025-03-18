@@ -25,12 +25,14 @@ Create two `.env` files: one for development and one for production.
     ```bash
     BOT_TOKEN=your-development-bot-token
     OPENAI_API_KEY=your-development-openai-api-key
+    GALACTUS_CHAT_ID=your-group-chat-id
     ```
 
 - `.env.prod`: (for production)
     ```bash
     BOT_TOKEN=your-production-bot-token
     OPENAI_API_KEY=your-production-openai-api-key
+    GALACTUS_CHAT_ID=your-group-chat-id
     ```
 
 Also create a `.env` with the same content of `.env.prod`
@@ -52,6 +54,7 @@ services:
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GALACTUS_CHAT_ID=${GALACTUS_CHAT_ID}
 ```
 
 This allows you to dynamically select the environment file when starting the bot.
