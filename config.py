@@ -4,8 +4,8 @@ import logging
 from pathlib import Path
 from dotenv import load_dotenv
 
-dotnev_path = Path(__file__).resolve().parent.parent / '.env'
-load_dotenv(dotenv_path=(dotenv_path))
+dotenv_path = Path(__file__).resolve().parent / '.env'
+load_dotenv(dotenv_path)
 
 # Configuração de logging
 logging.basicConfig(

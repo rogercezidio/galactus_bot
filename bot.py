@@ -11,6 +11,7 @@ from jobs.scheduler import schedule_link_jobs_for_all_chats
 from config import DATA_DIR
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
 
 def init_data_directory():
     try:
@@ -19,7 +20,7 @@ def init_data_directory():
     except Exception as e:
         logger.error(f"Não foi possível criar o diretório de dados em {DATA_DIR}: {e}")
         # Você pode decidir se quer sair do bot aqui ou tentar continuar
-        
+
 def main():
     init_data_directory()
     load_last_updated_date()
