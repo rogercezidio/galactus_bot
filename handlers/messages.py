@@ -1,4 +1,5 @@
 import random
+import logging
 from telegram import Update
 from telegram.ext import CallbackContext
 from config import GALACTUS_CHAT_ID, GALACTUS_PATTERN, GIF_URL
@@ -7,6 +8,7 @@ from handlers.keywords import roast_user
 async def galactus_reply(update: Update, context: CallbackContext):
     msg = update.message
     if not msg or not msg.text:
+        logging.getLogger(__name__).debug("galactus_reply: Mensagem vazia ou sem texto, retornando.")
         return
 
     chat_id = msg.chat.id
@@ -20,6 +22,7 @@ async def galactus_reply(update: Update, context: CallbackContext):
     )
 
     if is_reply or is_mention:
+        logger = logging.getLogger(__name__)
         try:
             prompt = f"Galactus, responda com sarcasmo esta mensagem: {user_msg}"
             from utils.api import client
@@ -32,7 +35,8 @@ async def galactus_reply(update: Update, context: CallbackContext):
             )
             reply = res.choices[0].message.content
             await context.bot.send_message(chat_id=chat_id, text=reply)
-        except Exception:
+        except Exception as e:
+            logger.error(f"Erro em galactus_reply ao tentar interagir com a API OpenAI: {e}", exc_info=True)
             await msg.reply_text("Galactus está entediado com seus erros humanos...")
 
 async def edited_message_handler(update: Update, context: CallbackContext):
