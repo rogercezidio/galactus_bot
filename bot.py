@@ -8,10 +8,20 @@ from handlers.messages import galactus_reply, edited_message_handler
 from handlers.keywords import daily_curse_by_galactus
 from jobs.updater import check_for_update
 from jobs.scheduler import schedule_link_jobs_for_all_chats
+from config import DATA_DIR
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
+def init_data_directory():
+    try:
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Diretório de dados verificado/criado em: {DATA_DIR}")
+    except Exception as e:
+        logger.error(f"Não foi possível criar o diretório de dados em {DATA_DIR}: {e}")
+        # Você pode decidir se quer sair do bot aqui ou tentar continuar
+        
 def main():
+    init_data_directory()
     load_last_updated_date()
     load_chat_ids()
 
