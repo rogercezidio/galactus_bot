@@ -15,29 +15,27 @@ def fetch_updated_date_from_site():
         response.raise_for_status()
         soup = BeautifulSoup(response.content, "html.parser")
 
-        # Tenta encontrar a data de atualização. A estrutura do site pode mudar.
-        # Ajuste este seletor conforme necessário.
-        # Exemplo: procurando por um <figcaption> que contenha "Updated:"
+        # Procura o <figcaption> que contenha "Updated:"
         figcaption_element = soup.find(
             "figcaption", string=lambda text: text and "Updated:" in text
         )
 
+        # Se não encontrar pelo texto, tenta pegar o primeiro <figcaption>
+        if not figcaption_element:
+            figcaption_element = soup.find("figcaption")
+
         if figcaption_element:
-            updated_text = figcaption_element.get_text(strip=True)
-            # Extrai a data após "Updated:"
-            updated_date_str = updated_text.split("Updated:", 1)[-1].strip()
-            if updated_date_str:  # Garante que algo foi extraído
-                logger.info(
-                    f"Data de atualização encontrada no site: {updated_date_str}"
-                )
+            # Procura o <a> dentro do <figcaption>
+            a_tag = figcaption_element.find("a")
+            if a_tag and a_tag.text.strip():
+                updated_date_str = a_tag.text.strip()
+                logger.info(f"Data de atualização encontrada no site: {updated_date_str}")
                 return updated_date_str
             else:
-                logger.warning(
-                    "Texto 'Updated:' encontrado, mas a data subsequente está vazia."
-                )
+                logger.warning("Tag <a> com a data não encontrada dentro do <figcaption>.")
                 return None
         else:
-            logger.warning("Elemento com a data de atualização não encontrado no site.")
+            logger.warning("Elemento <figcaption> com a data de atualização não encontrado no site.")
             return None
     except requests.RequestException as e:
         logger.error(f"Erro ao buscar a página de decks: {e}")
