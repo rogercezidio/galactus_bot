@@ -18,18 +18,23 @@ def fetch_updated_date_from_site():
 
         figcaption_element = soup.find("figcaption")
         if figcaption_element:
+            # Tenta pegar o texto do <a> (data)
+            a_tag = figcaption_element.find("a")
+            if a_tag and a_tag.text.strip():
+                updated_date_str = a_tag.text.strip()
+                logger.info(f"Data de atualização encontrada no <a>: {updated_date_str}")
+                return updated_date_str
+            # Fallback: regex no texto do figcaption
             text = figcaption_element.get_text(strip=True)
-            # Usa regex para extrair a data após "Updated:"
             match = re.search(r"Updated:\s*(.+)", text)
             if match:
                 updated_date_str = match.group(1)
-                logger.info(f"Data de atualização encontrada no site: {updated_date_str}")
+                logger.info(f"Data de atualização encontrada no texto: {updated_date_str}")
                 return updated_date_str
-            else:
-                logger.warning("Texto de data não encontrado após 'Updated:' no <figcaption>.")
-                return None
+            logger.warning("Data não encontrada no <figcaption>.")
+            return None
         else:
-            logger.warning("Elemento <figcaption> com a data de atualização não encontrado no site.")
+            logger.warning("Elemento <figcaption> não encontrado.")
             return None
     except requests.RequestException as e:
         logger.error(f"Erro ao buscar a página de decks: {e}")
