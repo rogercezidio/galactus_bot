@@ -2,9 +2,6 @@ import os
 import json
 from config import CHAT_IDS_FILE_PATH, UPDATE_FILE_PATH, logger
 
-last_updated_date = None
-
-
 def load_chat_ids():
     if not os.path.exists(CHAT_IDS_FILE_PATH):
         logger.warning(f"Arquivo de chat_ids não encontrado: {CHAT_IDS_FILE_PATH}")
@@ -41,7 +38,6 @@ def load_last_updated_date():
             logger.error(f"Erro ao carregar data de atualização: {e}")
         
         return last_updated_date
-
 
 def save_last_updated_date(date):
     global last_updated_date
