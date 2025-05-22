@@ -39,19 +39,17 @@ async def galactus_reply(update: Update, context: CallbackContext):
             prompt = (
                 f"Todo mundo no grupo sabe que você é Galactus, não precisa se apresentar. Imite Galactus em um grupo do Telegram, responda à seguinte mensagem com a personalidade e o tom de Galactus, pode responder com a máxima precisão possível:\nMensagem: {user_message}"
             )
-
             res = await client.chat.completions.create(
                 model="GPT-4.1 mini",
                 messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é Galactus, não precisa se apresentar.",
-                    },
-                    {"role": "user", "content": prompt},
+                    {"role": "system", "content": "Você é Galactus, o Devorador de Mundos, você está num grupo do Telegram e todo mundo no grupo sabe quem você é, não precisa se apresentar."},
+                    {"role": "user", "content": prompt}
                 ],
+                max_tokens=300
             )
             reply = res.choices[0].message.content
             await context.bot.send_message(chat_id=chat_id, text=reply)
+
         except Exception as e:
             logger.error(
                 f"Erro em galactus_reply ao tentar interagir com a API OpenAI: {e}",
