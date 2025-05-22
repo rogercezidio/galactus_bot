@@ -9,7 +9,6 @@ from utils.helpers import get_user_profile_photo_async
 
 chat_cooldowns = {}
 
-
 async def roast_user(update: Update, context: CallbackContext) -> None:
     user = update.effective_user
     path = await get_user_profile_photo_async(user.id, context.bot)
@@ -18,7 +17,6 @@ async def roast_user(update: Update, context: CallbackContext) -> None:
     await context.bot.send_animation(
         chat_id=update.effective_chat.id, animation=GIF_URL
     )
-
 
 async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> None:
     msg = update.message

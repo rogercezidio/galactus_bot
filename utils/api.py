@@ -13,7 +13,7 @@ async def generate_galactus_welcome(name: str) -> str:
     prompt = f"Galactus vai dar boas-vindas ao humano {name}. Seja poderoso e amigável."
     try:
         res = await client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="GPT-4.1 mini",
             messages=[
                 {
                     "role": "system",
@@ -32,7 +32,7 @@ async def generate_galactus_farewell(name: str) -> str:
     prompt = f"Galactus vai se despedir de {name} com sarcasmo e desdém."
     try:
         res = await client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="GPT-4.1 mini",
             messages=[
                 {
                     "role": "system",
@@ -59,7 +59,7 @@ async def generate_galactus_roast(name: str, photo_path: str) -> str:
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": "Descreva essa imagem."},
+                        {"type": "text", "text": "Descreva esta imagem em português."},
                         {
                             "type": "image_url",
                             "image_url": {"url": f"data:image/jpeg;base64,{img_b64}"},
@@ -83,17 +83,14 @@ async def generate_galactus_roast(name: str, photo_path: str) -> str:
         desc = vision_resp.json()["choices"][0]["message"]["content"]
 
         roast_prompt = (
-            f"{name}, Galactus viu sua foto: {desc}. Agora, humilhe esse humano."
+            f"Galactus está prestes a humilhar um humano chamado {name}. Aqui está a descrição da imagem de perfil desse usuário: {desc}. Escreva um insulto humilhante, sarcástico e devastador baseado nessa descrição."
         )
 
         res = await client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="GPT-4.1 mini",
             messages=[
-                {
-                    "role": "system",
-                    "content": "Você é Galactus. Seja sarcástico, curto e cruel.",
-                },
-                {"role": "user", "content": roast_prompt},
+                {"role": "system", "content": "Você é Galactus, o devorador de mundos. Humilhe este humano de forma curta e grossa como só Galactus pode, mencionando seu nome e usando a imagem descrita."},
+                {"role": "user", "content": roast_prompt}
             ],
         )
         return res.choices[0].message.content

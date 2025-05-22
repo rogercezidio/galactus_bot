@@ -1,5 +1,6 @@
 import random
 import logging
+from utils.api import client
 from telegram import Update
 from telegram.ext import CallbackContext
 from config import GALACTUS_CHAT_ID, GALACTUS_PATTERN, GIF_URL
@@ -35,11 +36,12 @@ async def galactus_reply(update: Update, context: CallbackContext):
     if is_reply or is_mention:
         logger = logging.getLogger(__name__)
         try:
-            prompt = f"Galactus, responda com sarcasmo esta mensagem: {user_msg}"
-            from utils.api import client
+            prompt = (
+                f"Todo mundo no grupo sabe que você é Galactus, não precisa se apresentar. Imite Galactus em um grupo do Telegram, responda à seguinte mensagem com a personalidade e o tom de Galactus, pode responder com a máxima precisão possível:\nMensagem: {user_message}"
+            )
 
             res = await client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="GPT-4.1 mini",
                 messages=[
                     {
                         "role": "system",
