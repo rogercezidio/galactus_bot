@@ -1,5 +1,6 @@
 import logging
 import requests
+import re
 from bs4 import BeautifulSoup
 from telegram.ext import CallbackContext
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
@@ -15,24 +16,17 @@ def fetch_updated_date_from_site():
         response.raise_for_status()
         soup = BeautifulSoup(response.content, "html.parser")
 
-        # Procura o <figcaption> que contenha "Updated:"
-        figcaption_element = soup.find(
-            "figcaption", string=lambda text: text and "Updated:" in text
-        )
-
-        # Se não encontrar pelo texto, tenta pegar o primeiro <figcaption>
-        if not figcaption_element:
-            figcaption_element = soup.find("figcaption")
-
+        figcaption_element = soup.find("figcaption")
         if figcaption_element:
-            # Procura o <a> dentro do <figcaption>
-            a_tag = figcaption_element.find("a")
-            if a_tag and a_tag.text.strip():
-                updated_date_str = a_tag.text.strip()
+            text = figcaption_element.get_text(strip=True)
+            # Usa regex para extrair a data após "Updated:"
+            match = re.search(r"Updated:\s*(.+)", text)
+            if match:
+                updated_date_str = match.group(1)
                 logger.info(f"Data de atualização encontrada no site: {updated_date_str}")
                 return updated_date_str
             else:
-                logger.warning("Tag <a> com a data não encontrada dentro do <figcaption>.")
+                logger.warning("Texto de data não encontrado após 'Updated:' no <figcaption>.")
                 return None
         else:
             logger.warning("Elemento <figcaption> com a data de atualização não encontrado no site.")
