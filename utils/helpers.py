@@ -1,8 +1,8 @@
 import base64
 import logging
 import os
-from pathlib import Path
 import aiofiles
+from pathlib import Path
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 
@@ -30,6 +30,7 @@ def get_user_profile_photo(user_id, bot):
         logging.error(f"Erro ao obter foto de perfil: {e}")
     return None
 
+
 async def get_user_profile_photo_async(user_id, bot):
     """Baixa a foto de perfil do usuário e retorna o caminho local (async)."""
     try:
@@ -42,6 +43,7 @@ async def get_user_profile_photo_async(user_id, bot):
     except Exception as e:
         logging.error(f"Erro ao obter foto de perfil (async): {e}")
     return None
+
 
 async def send_cosmic_roulette(context, chat_id):
     """

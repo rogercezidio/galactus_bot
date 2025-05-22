@@ -6,6 +6,7 @@ from handlers.commands import start, decks, spotlight
 from handlers.events import welcome_user, user_left_group
 from handlers.messages import galactus_reply, edited_message_handler
 from handlers.keywords import daily_curse_by_galactus
+from handlers.card import card
 from jobs.updater import check_for_update
 from jobs.scheduler import schedule_link_jobs_for_all_chats
 from config import DATA_DIR
@@ -33,6 +34,7 @@ def main():
     # comandos
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("decks", decks))
+    app.add_handler(CommandHandler("card", card))
     app.add_handler(CommandHandler("spotlight", spotlight))
 
     # mensagens e menções
