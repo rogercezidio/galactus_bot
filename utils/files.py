@@ -36,8 +36,11 @@ def load_last_updated_date():
                 logger.info(
                     f"Data de última atualização carregada: {last_updated_date}"
                 )
+    
         except Exception as e:
             logger.error(f"Erro ao carregar data de atualização: {e}")
+        
+        return last_updated_date
 
 
 def save_last_updated_date(date):

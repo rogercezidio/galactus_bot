@@ -1,7 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 from utils.decks import get_decks_keyboard
-from utils.files import load_chat_ids, save_chat_ids, last_updated_date
+from utils.files import load_chat_ids, save_chat_ids, load_last_updated_date
 from config import SPOTLIGHT_URL, COOLDOWN_TIME, chat_cooldowns
 import time
 
@@ -21,8 +21,8 @@ async def start(update: Update, context: CallbackContext) -> None:
 async def decks(update: Update, context: CallbackContext) -> None:
     reply_markup = get_decks_keyboard()
 
-    if last_updated_date:
-        msg = f"Selecione um deck para visualizar:\n\nÚltima atualização: {last_updated_date}"
+    if load_last_updated_date():
+        msg = f"Selecione um deck para visualizar:\n\nÚltima atualização: {load_last_updated_date()}"
     else:
         msg = "Selecione um deck para visualizar:\n\nÚltima atualização: Desconhecida"
 
