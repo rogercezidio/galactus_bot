@@ -97,7 +97,7 @@ def schedule_link_jobs_for_all_chats(job_queue: JobQueue):
             if not roulette_jobs:
                 job_queue.run_daily(
                     send_cosmic_roulette_job,
-                    time=dt_time(hour=20, minute=0, second=0),  # 20:00
+                    time=dt_time(hour=20, minute=0, second=0),  
                     data={"chat_id": chat_id},
                     name=roulette_job_name,
                 )

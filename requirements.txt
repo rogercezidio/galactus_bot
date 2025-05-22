@@ -4,3 +4,4 @@ openai
 requests
 bs4
 python-dotenv
+aiofiles>=23.1.0

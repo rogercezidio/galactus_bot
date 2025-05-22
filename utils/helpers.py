@@ -2,14 +2,15 @@ import base64
 import logging
 import os
 from pathlib import Path
+import aiofiles
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 
-def encode_image(path):
-    """Codifica uma imagem em base64."""
+async def encode_image_async(image_path: str) -> str | None:
     try:
-        with open(path, "rb") as f:
-            return base64.b64encode(f.read()).decode("utf-8")
+        async with aiofiles.open(image_path, "rb") as f:
+            image_bytes = await f.read()
+        return base64.b64encode(image_bytes).decode("utf-8")
     except Exception as e:
         logging.error(f"Erro ao codificar imagem: {e}")
         return None
@@ -29,25 +30,18 @@ def get_user_profile_photo(user_id, bot):
         logging.error(f"Erro ao obter foto de perfil: {e}")
     return None
 
-
-def get_user_profile_photo_async(user_id, bot):
+async def get_user_profile_photo_async(user_id, bot):
     """Baixa a foto de perfil do usuário e retorna o caminho local (async)."""
-    import asyncio
-
-    async def _get():
-        try:
-            photos = await bot.get_user_profile_photos(user_id)
-            if photos.total_count > 0:
-                file = await bot.get_file(photos.photos[0][-1].file_id)
-                path = os.path.join(Path(__file__).parent, f"{user_id}_photo.jpg")
-                await file.download_to_drive(path)
-                return path
-        except Exception as e:
-            logging.error(f"Erro ao obter foto de perfil (async): {e}")
-        return None
-
-    return asyncio.run(_get())
-
+    try:
+        photos = await bot.get_user_profile_photos(user_id)
+        if photos.total_count > 0:
+            file = await bot.get_file(photos.photos[0][-1].file_id)
+            path = os.path.join(Path(__file__).parent, f"{user_id}_photo.jpg")
+            await file.download_to_drive(path)
+            return path
+    except Exception as e:
+        logging.error(f"Erro ao obter foto de perfil (async): {e}")
+    return None
 
 async def send_cosmic_roulette(context, chat_id):
     """

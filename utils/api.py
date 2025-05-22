@@ -4,7 +4,7 @@ import logging
 import requests
 from openai import AsyncOpenAI
 from config import OPENAI_API_KEY
-from utils.helpers import encode_image
+from utils.helpers import encode_image_async
 
 client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
@@ -13,7 +13,7 @@ async def generate_galactus_welcome(name: str) -> str:
     prompt = f"Galactus vai dar boas-vindas ao humano {name}. Seja poderoso e amigável."
     try:
         res = await client.chat.completions.create(
-            model="GPT-4.1 mini",
+            model="gpt-4.1-mini",
             messages=[
                 {
                     "role": "system",
@@ -32,7 +32,7 @@ async def generate_galactus_farewell(name: str) -> str:
     prompt = f"Galactus vai se despedir de {name} com sarcasmo e desdém."
     try:
         res = await client.chat.completions.create(
-            model="GPT-4.1 mini",
+            model="gpt-4.1-mini",
             messages=[
                 {
                     "role": "system",
@@ -48,7 +48,8 @@ async def generate_galactus_farewell(name: str) -> str:
 
 
 async def generate_galactus_roast(name: str, photo_path: str) -> str:
-    img_b64 = encode_image(photo_path)
+    img_b64 = await encode_image_async(photo_path)
+
     if not img_b64:
         return f"{name}, sua imagem é tão irrelevante que nem Galactus se importa."
 
@@ -87,7 +88,7 @@ async def generate_galactus_roast(name: str, photo_path: str) -> str:
         )
 
         res = await client.chat.completions.create(
-            model="GPT-4.1 mini",
+            model="gpt-4.1-mini",
             messages=[
                 {"role": "system", "content": "Você é Galactus, o devorador de mundos. Humilhe este humano de forma curta e grossa como só Galactus pode, mencionando seu nome e usando a imagem descrita."},
                 {"role": "user", "content": roast_prompt}
