@@ -15,22 +15,6 @@ TIER_EMOJIS = {
 DEFAULT_TIER_EMOJI = "⭐"  # Emoji padrão se o tier não for encontrado
 
 
-def fetch_updated_date():
-    try:
-        response = requests.get(DECK_LIST_URL)
-        response.raise_for_status()
-
-        soup = BeautifulSoup(response.content, "html.parser")
-        figcaption = soup.find("figcaption")
-
-        if figcaption and "Updated:" in figcaption.get_text():
-            return figcaption.get_text(strip=True).split("Updated:")[1].strip()
-        logger.info("Elemento de data não encontrado na página.")
-    except Exception as e:
-        logger.error(f"Erro ao buscar data de atualização: {e}")
-    return None
-
-
 def get_decks_keyboard():
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
