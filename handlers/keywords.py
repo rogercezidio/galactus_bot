@@ -5,27 +5,20 @@ from telegram import Update
 from telegram.ext import CallbackContext
 from config import GALACTUS_CHAT_ID, GALACTUS_PATTERN, GIF_URL
 from utils.api import generate_galactus_roast
+from utils.helpers import get_user_profile_photo_async
 
 chat_cooldowns = {}
 
-async def get_user_profile_photo(user_id, bot):
-    try:
-        photos = await bot.get_user_profile_photos(user_id)
-        if photos.total_count > 0:
-            file = await bot.get_file(photos.photos[0][-1].file_id)
-            path = os.path.join(Path(__file__).parent, f"{user_id}_photo.jpg")
-            await file.download_to_drive(path)
-            return path
-    except:
-        pass
-    return None
 
 async def roast_user(update: Update, context: CallbackContext) -> None:
     user = update.effective_user
-    path = await get_user_profile_photo(user.id, context.bot)
+    path = await get_user_profile_photo_async(user.id, context.bot)
     text = await generate_galactus_roast(user.first_name, path)
     await update.message.reply_text(text)
-    await context.bot.send_animation(chat_id=update.effective_chat.id, animation=GIF_URL)
+    await context.bot.send_animation(
+        chat_id=update.effective_chat.id, animation=GIF_URL
+    )
+
 
 async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> None:
     msg = update.message
@@ -37,4 +30,3 @@ async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> N
             else:
                 await msg.reply_text("Banido!")
                 await context.bot.send_animation(chat_id=chat_id, animation=GIF_URL)
-                

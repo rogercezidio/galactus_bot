@@ -3,3 +3,4 @@
 .env.prod
 app/data/
 *cache*
+.venv

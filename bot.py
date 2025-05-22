@@ -13,6 +13,7 @@ from config import DATA_DIR
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
+
 def init_data_directory():
     try:
         DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -20,6 +21,7 @@ def init_data_directory():
     except Exception as e:
         logger.error(f"Não foi possível criar o diretório de dados em {DATA_DIR}: {e}")
         # Você pode decidir se quer sair do bot aqui ou tentar continuar
+
 
 def main():
     init_data_directory()
@@ -34,13 +36,21 @@ def main():
     app.add_handler(CommandHandler("spotlight", spotlight))
 
     # mensagens e menções
-    app.add_handler(MessageHandler(filters.TEXT & filters.Regex(GALACTUS_PATTERN), daily_curse_by_galactus))
+    app.add_handler(
+        MessageHandler(
+            filters.TEXT & filters.Regex(GALACTUS_PATTERN), daily_curse_by_galactus
+        )
+    )
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, galactus_reply))
-    app.add_handler(MessageHandler(filters.UpdateType.EDITED_MESSAGE, edited_message_handler))
+    app.add_handler(
+        MessageHandler(filters.UpdateType.EDITED_MESSAGE, edited_message_handler)
+    )
 
     # eventos do grupo
     app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome_user))
-    app.add_handler(MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, user_left_group))
+    app.add_handler(
+        MessageHandler(filters.StatusUpdate.LEFT_CHAT_MEMBER, user_left_group)
+    )
 
     # jobs
     app.job_queue.run_repeating(check_for_update, interval=1800, first=10)
@@ -48,5 +58,6 @@ def main():
 
     app.run_polling()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
