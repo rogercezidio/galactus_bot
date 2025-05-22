@@ -1,10 +1,9 @@
 import base64
 import logging
 import os
-from pathlib import Path
 import aiofiles
+from pathlib import Path
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
 
 async def encode_image_async(image_path: str) -> str | None:
     try:
