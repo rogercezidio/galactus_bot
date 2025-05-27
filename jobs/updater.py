@@ -3,12 +3,11 @@ import requests
 import re
 from bs4 import BeautifulSoup
 from telegram.ext import CallbackContext
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from utils.decks import get_decks_keyboard
 from config import DECK_LIST_URL, UPDATE_FILE_PATH, CHAT_IDS_FILE_PATH
 from utils.files import load_last_updated_date, save_last_updated_date, load_chat_ids
 
 logger = logging.getLogger(__name__)
-
 
 def fetch_updated_date_from_site():
     try:
@@ -43,16 +42,6 @@ def fetch_updated_date_from_site():
         logger.error(f"Erro ao processar a página de decks: {e}")
         return None
 
-
-def get_decks_keyboard_for_update():
-    """
-    Cria um teclado inline com um link para a lista de decks.
-    Pode ser expandido para mostrar os decks diretamente se desejado.
-    """
-    keyboard = [[InlineKeyboardButton("Ver Decks Atualizados", url=DECK_LIST_URL)]]
-    return InlineKeyboardMarkup(keyboard)
-
-
 async def check_for_update(context: CallbackContext):
     """
     Verifica se a lista de decks foi atualizada e notifica os chats.
@@ -84,7 +73,8 @@ async def check_for_update(context: CallbackContext):
                 return
 
             message_text = f"📢 O meta do Marvel Snap foi atualizado ({current_site_update_date})!\nConfira os novos decks:"
-            reply_markup = get_decks_keyboard_for_update()
+            reply_markup = get_decks_keyboard()
+
 
             for chat_info in chat_ids_to_notify:
                 chat_id = chat_info.get("chat_id")
