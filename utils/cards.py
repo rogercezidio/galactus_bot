@@ -50,7 +50,7 @@ def get_card_info(card_name):
 
 def format_card_message(card_data):
     return (
-        f"**{card_data['name']}**\n"
+        f"**{card_data['name']}**\n\n"
         f"📝 {card_data['description']}\n\n"
         f"[🔍 Ver detalhes]({card_data['url']}) | [🧩 Ver decks]({card_data['decks_url']})"
     )
