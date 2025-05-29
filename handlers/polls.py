@@ -22,7 +22,6 @@ def pergunta_com_chat(carta: str, chat_id: int) -> str:
     sufixo = f" —{str(chat_id)[-3:]}"     # ex.: “—123”
     return f'O que você acha da carta "{carta}"?{sufixo}'
 
-
 async def enviar_enquete_carta_unica(context: CallbackContext):
     chat_id = context.job.data.get("chat_id") if context.job else GALACTUS_CHAT_ID
     carta = pick_card_without_repetition(context.bot_data, CARDS_NAMES)

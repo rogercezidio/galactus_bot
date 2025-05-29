@@ -13,7 +13,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
-<<<<<<< HEAD
 logger = logging.getLogger(__name__)
 
 def _chrome_opts() -> Options:
@@ -23,14 +22,6 @@ def _chrome_opts() -> Options:
     opts.add_argument("--no-sandbox")
     opts.add_argument("--disable-dev-shm-usage")
     return opts
-=======
-def get_card_info(card_name):
-    base_url = "https://marvelsnapzone.com/cards/"
-    card_slug = card_name.lower().replace(" ", "-")
-    url = f"{base_url}{card_slug}/"
-
-    headers = {"User-Agent": "Mozilla/5.0"}
->>>>>>> de6dd6f9ec92a38790f2cd04370ff1c4fee40754
 
 def _url_is_image(url: str, timeout=5) -> bool:
     try:
@@ -44,7 +35,6 @@ def get_card_info(name: str) -> Dict:
     url  = f"https://marvelsnapzone.com/cards/{slug}/"
     decks_url = f"https://marvelsnapzone.com/decks/{slug}"
 
-<<<<<<< HEAD
     driver = webdriver.Chrome(options=_chrome_opts())    
     
     try:
@@ -78,29 +68,8 @@ def get_card_info(name: str) -> Dict:
         series = driver.find_elements(By.XPATH, "//div[div[text()='Source']]/div[@class='info']")
         if series:
             tags.append(series[0].text.strip())
-=======
-    # Nome da carta
-    name_tag = soup.select_one("h1.entry-title")
-    name = name_tag.get_text(strip=True) if name_tag else card_name.title()
-
-    # Imagem
-    img_tag = soup.select_one("div.cardimage div.front img")
-    img_url = img_tag["src"] if img_tag and img_tag.get("src") else None
-
-    # Habilidade / descrição
-    description_tag = soup.select_one("div.cardimage div.front div.info p")
-    description = description_tag.get_text(strip=True) if description_tag else "Descrição não encontrada."
-
-    # Link de decks
-    decks_link_tag = soup.select_one("a.btn.icon.deck-list")
-    decks_link = decks_link_tag["href"] if decks_link_tag and decks_link_tag.get("href") else f"https://marvelsnapzone.com/decks/{card_slug}"
-
-    # Link de detalhes
-    card_url = url
->>>>>>> de6dd6f9ec92a38790f2cd04370ff1c4fee40754
 
         return {
-<<<<<<< HEAD
             "name": h1,
             "slug": slug,
             "url": url,
@@ -111,17 +80,6 @@ def get_card_info(name: str) -> Dict:
             "power": power,
             "tags": tags,
         }
-=======
-            "name": name,
-            "slug": card_slug,
-            "url": card_url,
-            "image": img_url,
-            "description": description,
-            "decks_url": decks_link
-        }
-    else:
-        return f"Carta '{card_name}' não encontrada ou sem imagem disponível."
->>>>>>> de6dd6f9ec92a38790f2cd04370ff1c4fee40754
 
     except TimeoutException:
         return {"error": f"Carta '{name}' não carregou a tempo.", "slug": slug, "url": url}
@@ -132,7 +90,6 @@ def get_card_info(name: str) -> Dict:
         
 
 def format_card_message(card_data):
-<<<<<<< HEAD
     base = f"**{card_data['name']}**\n\n"
     stats = f"💰 Custo: {card_data.get('cost', '??')} | 💥 Poder: {card_data.get('power', '??')}\n\n"
     desc = f"📝 {card_data['description']}\n\n"
@@ -231,10 +188,3 @@ def load_playable_card_names() -> List[str]:
     ]
 
 CARDS_NAMES = load_playable_card_names()
-=======
-    return (
-        f"**{card_data['name']}**\n\n"
-        f"📝 {card_data['description']}\n\n"
-        f"[🔍 Ver detalhes]({card_data['url']}) | [🧩 Ver decks]({card_data['decks_url']})"
-    )
->>>>>>> de6dd6f9ec92a38790f2cd04370ff1c4fee40754
