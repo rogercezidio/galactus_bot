@@ -1,11 +1,29 @@
 import logging
 from telegram.ext import JobQueue, CallbackContext
 from datetime import time as dt_time 
+from zoneinfo import ZoneInfo         
 from utils.files import load_chat_ids
 from utils.helpers import send_cosmic_roulette
 from handlers.polls import enviar_enquete_carta_unica
 
 logger = logging.getLogger(__name__)
+TZ = ZoneInfo("America/Sao_Paulo") 
+
+def schedule_polls_for_chat(job_queue, chat_id: int):
+    poll_base_name = f"hourly_poll_{chat_id}"
+
+    for hour in range(7, 23):          
+        job_name = f"{poll_base_name}_{hour:02d}"
+
+        if job_queue.get_jobs_by_name(job_name):
+            continue
+
+        job_queue.run_daily(
+            enviar_enquete_carta_unica,
+            time=dt_time(hour=hour, minute=15, tzinfo=TZ),
+            name=job_name,
+            data={"chat_id": chat_id},
+        )
 
 async def send_cosmic_roulette_job(context: CallbackContext):
     job_data = context.job.data
@@ -31,17 +49,10 @@ def schedule_link_jobs_for_all_chats(job_queue: JobQueue):
         if not job_queue.get_jobs_by_name(roulette_name):
             job_queue.run_daily(
                 send_cosmic_roulette_job,
-                time=dt_time(hour=20, minute=0),
+                time=dt_time(hour=17, minute=0, tzinfo=TZ),
                 data={"chat_id": chat_id},
                 name=roulette_name,
             )
 
-        poll_name = f"hourly_poll_{chat_id}"
-        if not job_queue.get_jobs_by_name(poll_name):
-            job_queue.run_repeating(
-                enviar_enquete_carta_unica,
-                interval=60*60,     
-                first=30,       
-                name=poll_name,
-                data={"chat_id": chat_id},
-            )
+        schedule_polls_for_chat(job_queue, chat_id) 
+

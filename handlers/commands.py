@@ -5,7 +5,23 @@ from utils.decks import get_decks_keyboard
 from utils.files import load_chat_ids, save_chat_ids, load_last_updated_date
 from utils.ranking import calcular_top_bottom, vote_stats, _format_line
 from config import SPOTLIGHT_URL, COOLDOWN_TIME, chat_cooldowns, MIN_CARTAS
+from utils.snapify import generate_snap_card_with_user_photo 
+import random, asyncio
 import time
+import logging
+
+logger  = logging.getLogger(__name__)
+CHANCE  = 0.1 
+
+def _is_card_error(res: dict | str) -> bool:
+    if isinstance(res, str):
+        return True
+    if res.get("error"):
+        return True
+    if res.get("name", "").strip().lower() in {"card not found", "carta não encontrada"}:
+        return True
+    return False
+
 
 async def start_command(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
@@ -54,9 +70,7 @@ async def spotlight_command(update: Update, context: CallbackContext) -> None:
 
 async def card_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message or update.edited_message
-
     if not message:
-        print("Mensagem não encontrada no update.")
         return
 
     if not context.args:
@@ -64,24 +78,32 @@ async def card_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     card_name = " ".join(context.args)
-    result = get_card_info(card_name)
+    loop = asyncio.get_running_loop()
+    result = await loop.run_in_executor(None, get_card_info, card_name)
 
-    if isinstance(result, str) or result.get("error"):
-        await update.message.reply_text(
-            result if isinstance(result, str) else result["error"],
-            quote=True,
-        )
+    if _is_card_error(result):
+        if random.random() < CHANCE:
+            try:
+                img, cap = await generate_snap_card_with_user_photo(context.bot, message.from_user)
+                await context.bot.send_photo(message.chat_id, img, caption=cap, parse_mode="Markdown")
+                return
+            except Exception as e:
+                log.error("Falha snap-card: %s", e)
+
+        # fallback clássico (sem KeyError!)
+        msg = result if isinstance(result, str) else result.get("error", "Carta não encontrada.")
+        await message.reply_text(msg, quote=True)
         return
-    
+
     if not result["image"]:
-        await update.message.reply_text(
+        await message.reply_text(
             format_card_message(result),
             parse_mode="Markdown",
             disable_web_page_preview=True,
         )
         return
 
-    await update.message.reply_photo(
+    await message.reply_photo(
         photo=result["image"],
         caption=format_card_message(result),
         parse_mode="Markdown",
