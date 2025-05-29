@@ -7,3 +7,4 @@ python-dotenv
 aiofiles>=23.1.0
 setuptools<81
 selenium
+pillow
