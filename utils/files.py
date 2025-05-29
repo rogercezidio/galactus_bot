@@ -23,7 +23,6 @@ def save_chat_ids(chat_ids):
     except Exception as e:
         logger.error(f"Erro ao salvar chat_ids: {e}")
 
-
 def load_last_updated_date():
     global last_updated_date
     if os.path.exists(UPDATE_FILE_PATH):
@@ -48,3 +47,4 @@ def save_last_updated_date(date):
             logger.info(f"Data de atualização salva: {last_updated_date}")
     except Exception as e:
         logger.error(f"Erro ao salvar data de atualização: {e}")
+

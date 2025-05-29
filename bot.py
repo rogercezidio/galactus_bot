@@ -1,12 +1,12 @@
 import logging
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, PollAnswerHandler
 from config import TOKEN, GALACTUS_PATTERN
 from utils.files import load_chat_ids, load_last_updated_date
-from handlers.commands import start, decks, spotlight
+from handlers.polls import registrar_resposta_enquete
+from handlers.commands import start_command, decks_command, spotlight_command, ranking_command, card_command, atualizar_lista_de_cartas_command, ranking_command
 from handlers.events import welcome_user, user_left_group
 from handlers.messages import galactus_reply, edited_message_handler
 from handlers.keywords import daily_curse_by_galactus
-from handlers.card import card
 from jobs.updater import check_for_update
 from jobs.scheduler import schedule_link_jobs_for_all_chats
 from config import DATA_DIR
@@ -21,7 +21,6 @@ def init_data_directory():
         logger.info(f"Diretório de dados verificado/criado em: {DATA_DIR}")
     except Exception as e:
         logger.error(f"Não foi possível criar o diretório de dados em {DATA_DIR}: {e}")
-        # Você pode decidir se quer sair do bot aqui ou tentar continuar
 
 
 def main():
@@ -32,10 +31,12 @@ def main():
     app = Application.builder().token(TOKEN).build()
 
     # comandos
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("decks", decks))
-    app.add_handler(CommandHandler("card", card))
-    app.add_handler(CommandHandler("spotlight", spotlight))
+    app.add_handler(CommandHandler("start", start_command))
+    app.add_handler(CommandHandler("decks", decks_command))
+    app.add_handler(CommandHandler("card", card_command))
+    app.add_handler(CommandHandler("spotlight", spotlight_command))
+    app.add_handler(CommandHandler("ranking", ranking_command))
+    app.add_handler(CommandHandler("atualizar_lista_de_cartas", atualizar_lista_de_cartas_command))
 
     # mensagens e menções
     app.add_handler(
@@ -57,6 +58,9 @@ def main():
     # jobs
     app.job_queue.run_repeating(check_for_update, interval=1800, first=10)
     schedule_link_jobs_for_all_chats(app.job_queue)
+
+    # enquetes
+    app.add_handler(PollAnswerHandler(registrar_resposta_enquete))
 
     app.run_polling()
 
