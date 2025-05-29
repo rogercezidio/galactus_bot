@@ -1,98 +1,110 @@
-import requests
-from bs4 import BeautifulSoup
-from bs4.element import NavigableString
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from config import DECK_LIST_URL, logger
+import re, logging, requests
+from bs4 import BeautifulSoup
+from typing import Optional
+
+logger = logging.getLogger(__name__)
+UA = {"User-Agent": "Mozilla/5.0 (compatible; SnapBot/1.0)"}
+
+_DATE_RE = re.compile(
+    r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\s+\d{1,2},\s+\d{4}"
+)
 
 TIER_EMOJIS = {
-    "Tier S": "👑",  # Tier S
-    "Tier 1": "1️⃣",  # Tier 1 - Número Um
-    "Tier 2": "2️⃣",  # Tier 2 - Número Dois
-    "Tier 3": "3️⃣",  # Tier 3 - Número Três
-    "Trending": "🔥",  # Decks em ascensão / "fora do radar"
-    # Adicione outros tiers e seus emojis aqui se o site os usar
+    "Tier S": "👑",
+    "Tier 1": "1️⃣",
+    "Tier 2": "2️⃣",
+    "Tier 3": "3️⃣",
+    "Trending": "🔥",
 }
-DEFAULT_TIER_EMOJI = "⭐"  # Emoji padrão se o tier não for encontrado
+DEFAULT_TIER_EMOJI = "⭐"
 
 
 def get_decks_keyboard():
     try:
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(DECK_LIST_URL, headers=headers)
-        response.raise_for_status()
+        options = Options()
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
 
-        soup = BeautifulSoup(response.content, "html.parser")
-        table = soup.find("table")
-        if not table:
-            return None
+        driver = webdriver.Chrome(options=options)
+        driver.get(DECK_LIST_URL)
+
+        table = driver.find_element(By.TAG_NAME, "table")
+        rows = table.find_elements(By.TAG_NAME, "tr")[1:]  
 
         keyboard = []
-        for row in table.find_all("tr")[1:]:
-            cols = row.find_all("td")
-            if len(cols) >= 2:
-                tier_text = cols[0].text.strip()
-                tier_emoji = TIER_EMOJIS.get(tier_text, DEFAULT_TIER_EMOJI)
-                # tier_display agora será apenas o emoji
-                tier_display = tier_emoji
-                deck_cell = cols[1]
 
-                link_tag = deck_cell.find("a")
+        for row in rows:
+            cols = row.find_elements(By.TAG_NAME, "td")
+            if len(cols) < 2:
+                continue
 
-                if link_tag and link_tag.has_attr("href"):
-                    deck_name_from_a = link_tag.text.strip()
-                    deck_link = link_tag["href"]
+            tier_text = cols[0].text.strip()
+            tier_emoji = TIER_EMOJIS.get(tier_text, DEFAULT_TIER_EMOJI)
 
-                    # Formatar para linha única, pois o Telegram não suporta múltiplas linhas em botões de forma confiável.
-                    button_display_text = f"{tier_display} {deck_name_from_a}"
+            link_tag = cols[1].find_element(By.TAG_NAME, "a")
+            deck_name = link_tag.text.strip()
+            deck_link = link_tag.get_attribute("href")
 
-                    # Encontrar o texto após a tag <br>
-                    br_tag = deck_cell.find("br")
-                    if br_tag and br_tag.next_sibling:
-                        # next_sibling pode ser um NavigableString ou outro Tag
-                        if isinstance(br_tag.next_sibling, NavigableString):
-                            additional_info_str = br_tag.next_sibling.strip()
-                            if (
-                                additional_info_str
-                            ):  # Certifica-se de que não está vazio após o strip
-                                parts = additional_info_str.split(
-                                    "/", 1
-                                )  # Divide apenas na primeira '/'
+            button_display_text = f"{tier_emoji} {deck_name}"
 
-                                if len(parts) == 2:
-                                    cube_info_raw = parts[0].strip()
-                                    win_rate_info_raw = parts[1].strip()
+            html_raw = cols[1].get_attribute("innerHTML")
+            split_parts = html_raw.split("<br>")
 
-                                    # Extrai apenas o valor numérico/percentual (geralmente a primeira parte antes de um espaço)
-                                    cube_value = (
-                                        cube_info_raw.split(" ", 1)[0]
-                                        if cube_info_raw
-                                        else ""
-                                    )
-                                    win_rate_value = (
-                                        win_rate_info_raw.split(" ", 1)[0]
-                                        if win_rate_info_raw
-                                        else ""
-                                    )
+            if len(split_parts) > 1:
+                from bs4 import BeautifulSoup
 
-                                    cube_emoji = "🧊"
-                                    win_rate_emoji = "📈"
-                                    button_display_text += f" | {cube_emoji} {cube_value} | {win_rate_emoji} {win_rate_value}"
-                                else:
-                                    # Fallback se o formato não for "Algo / Algo mais"
-                                    # Substitui qualquer '/' restante por '|' e usa um emoji genérico
-                                    processed_info = additional_info_str.replace(
-                                        "/", " | "
-                                    )
-                                    generic_stats_emoji = "📊"
-                                    button_display_text += (
-                                        f" | {generic_stats_emoji} {processed_info}"
-                                    )
+                post_br_html = split_parts[1]
+                post_text = BeautifulSoup(post_br_html, "html.parser").text.strip()
+                if "/" in post_text:
+                    cube_info, win_rate_info = [p.strip() for p in post_text.split("/", 1)]
+                    cube_value = cube_info.split(" ", 1)[0]
+                    win_rate_value = win_rate_info.split(" ", 1)[0]
+                    button_display_text += f" | 🧊 {cube_value} | 📈 {win_rate_value}"
+                else:
+                    button_display_text += f" | 📊 {post_text.replace('/', '|')}"
 
-                    keyboard.append(
-                        [InlineKeyboardButton(button_display_text, url=deck_link)]
-                    )
+            keyboard.append([InlineKeyboardButton(button_display_text, url=deck_link)])
 
+        driver.quit()
         return InlineKeyboardMarkup(keyboard)
+
     except Exception as e:
-        logger.error(f"Erro ao montar teclado de decks: {e}")
+        logger.error(f"Erro ao montar teclado de decks com Selenium: {e}")
         return None
+
+
+def _extract_date_from_html(html: str) -> Optional[str]:
+    soup = BeautifulSoup(html, "html.parser")
+
+    fig = soup.select_one("figure.wp-block-table figcaption")
+    if fig:
+        m = _DATE_RE.search(fig.get_text(" ", strip=True))
+        if m:
+            return m.group(0)
+
+    m = re.search(r"Updated:\s*" + _DATE_RE.pattern, soup.get_text(" ", strip=True))
+    if m:
+        return _DATE_RE.search(m.group(0)).group(0)
+
+    return None
+
+
+def fetch_updated_date_fast() -> Optional[str]:
+    """Devolve a data de atualização visível; fallback para Last-Modified."""
+    try:
+        resp = requests.get(DECK_LIST_URL, headers=UA, timeout=8)
+        resp.raise_for_status()
+    except Exception as exc:
+        log.error("GET %s falhou: %s", DECK_LIST_URL, exc)
+        return None
+
+    date_html = _extract_date_from_html(resp.text)
+    if date_html:
+        return date_html
+    return resp.headers.get("Last-Modified")

@@ -1,46 +1,9 @@
 import logging
-import requests
-import re
-from bs4 import BeautifulSoup
 from telegram.ext import CallbackContext
-from utils.decks import get_decks_keyboard
-from config import DECK_LIST_URL, UPDATE_FILE_PATH, CHAT_IDS_FILE_PATH
+from utils.decks import get_decks_keyboard, fetch_updated_date_fast
 from utils.files import load_last_updated_date, save_last_updated_date, load_chat_ids
 
 logger = logging.getLogger(__name__)
-
-def fetch_updated_date_from_site():
-    try:
-        response = requests.get(DECK_LIST_URL, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.content, "html.parser")
-
-        figcaption_element = soup.find("figcaption")
-        if figcaption_element:
-            # Tenta pegar o texto do <a> (data)
-            a_tag = figcaption_element.find("a")
-            if a_tag and a_tag.text.strip():
-                updated_date_str = a_tag.text.strip()
-                logger.info(f"Data de atualização encontrada no <a>: {updated_date_str}")
-                return updated_date_str
-            # Fallback: regex no texto do figcaption
-            text = figcaption_element.get_text(strip=True)
-            match = re.search(r"Updated:\s*(.+)", text)
-            if match:
-                updated_date_str = match.group(1)
-                logger.info(f"Data de atualização encontrada no texto: {updated_date_str}")
-                return updated_date_str
-            logger.warning("Data não encontrada no <figcaption>.")
-            return None
-        else:
-            logger.warning("Elemento <figcaption> não encontrado.")
-            return None
-    except requests.RequestException as e:
-        logger.error(f"Erro ao buscar a página de decks: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Erro ao processar a página de decks: {e}")
-        return None
 
 async def check_for_update(context: CallbackContext):
     """
@@ -48,7 +11,7 @@ async def check_for_update(context: CallbackContext):
     """
     logger.info("Job 'check_for_update' iniciado.")
 
-    current_site_update_date = fetch_updated_date_from_site()
+    current_site_update_date = fetch_updated_date_fast()
     last_known_update_date = (
         load_last_updated_date()
     )  # Esta função já está em utils/files

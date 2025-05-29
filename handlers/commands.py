@@ -1,12 +1,13 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CallbackContext
+from telegram.ext import CallbackContext, ContextTypes ,CommandHandler
+from utils.cards import get_card_info, format_card_message, atualizar_lista_de_cartas
 from utils.decks import get_decks_keyboard
 from utils.files import load_chat_ids, save_chat_ids, load_last_updated_date
-from config import SPOTLIGHT_URL, COOLDOWN_TIME, chat_cooldowns
+from utils.ranking import calcular_top_bottom, vote_stats, _format_line
+from config import SPOTLIGHT_URL, COOLDOWN_TIME, chat_cooldowns, MIN_CARTAS
 import time
 
-
-async def start(update: Update, context: CallbackContext) -> None:
+async def start_command(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     chat_name = update.effective_chat.title or update.effective_chat.first_name
     chats = load_chat_ids()
@@ -18,7 +19,7 @@ async def start(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text("Olá! Eu sou o Galactus Bot. Estou ouvindo...")
 
 
-async def decks(update: Update, context: CallbackContext) -> None:
+async def decks_command(update: Update, context: CallbackContext) -> None:
     reply_markup = get_decks_keyboard()
 
     if load_last_updated_date():
@@ -32,7 +33,7 @@ async def decks(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text("Falha ao recuperar os decks.")
 
 
-async def spotlight(update: Update, context: CallbackContext) -> None:
+async def spotlight_command(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     now = time.time()
 
@@ -49,3 +50,86 @@ async def spotlight(update: Update, context: CallbackContext) -> None:
         "Clique abaixo para ver os próximos baús de destaque:",
         reply_markup=reply_markup,
     )
+
+
+async def card_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.message or update.edited_message
+
+    if not message:
+        print("Mensagem não encontrada no update.")
+        return
+
+    if not context.args:
+        await message.reply_text("Use o comando assim: /card [nome da carta]")
+        return
+
+    card_name = " ".join(context.args)
+    result = get_card_info(card_name)
+
+    if isinstance(result, str) or result.get("error"):
+        await update.message.reply_text(
+            result if isinstance(result, str) else result["error"],
+            quote=True,
+        )
+        return
+    
+    if not result["image"]:
+        await update.message.reply_text(
+            format_card_message(result),
+            parse_mode="Markdown",
+            disable_web_page_preview=True,
+        )
+        return
+
+    await update.message.reply_photo(
+        photo=result["image"],
+        caption=format_card_message(result),
+        parse_mode="Markdown",
+    )
+
+
+async def ranking_command(update: Update, context: CallbackContext):
+    top, flop, total_cartas = calcular_top_bottom()
+
+    if total_cartas < MIN_CARTAS:
+        await update.message.reply_text(
+            f"Ainda precisamos de mais variedade!\n"
+            f"Atualmente só {total_cartas} cartas receberam votos "
+            f"(mínimo {MIN_CARTAS})."
+        )
+        return
+
+    if not top or not flop:
+        await update.message.reply_text("Ainda não há votos suficientes 🤷‍♂️")
+        return
+
+    _, total_votos = vote_stats()
+    linhas = [
+        "*🏆 Ranking das Cartas*",
+        f"_Total de votos:_ *{total_votos}*",
+        ""
+    ]
+
+    linhas.append("🔥 *Top Cards*")
+    for pos, (name, media, votos) in enumerate(top, 1):
+        linhas.append(_format_line(pos, name, media, votos, flop=False))
+
+    linhas.append("")
+
+    linhas.append("💣 *Bottom Cards*")
+    for pos, (name, media, votos) in enumerate(flop, 1):
+        linhas.append(_format_line(pos, name, media, votos, flop=True))
+
+    await update.message.reply_text(
+        "\n".join(linhas),
+        parse_mode="Markdown",
+        disable_web_page_preview=True,
+    )
+    
+
+async def atualizar_lista_de_cartas_command(update: Update, context: CallbackContext):
+    try:
+        atualizar_lista_de_cartas()
+        await update.message.reply_text("✅ Lista de cartas atualizada com sucesso!")
+    except Exception as e:
+        await update.message.reply_text(f"❌ Erro ao atualizar cartas: {e}")

@@ -20,6 +20,7 @@ GALACTUS_CHAT_ID = os.getenv("GALACTUS_CHAT_ID")
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 DATA_DIR = PROJECT_ROOT / "data"
+CARD_LIST_PATH = DATA_DIR / "card_list.json"
 
 if TOKEN is None:
     logger.error("BOT_TOKEN não definido.")
@@ -36,14 +37,15 @@ GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2Z4amt5dTVlYWEycmZ4bjJ1
 WELCOME_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTQwb2dzejFrejhyMjc4NWh1OThtMW1vOGxvMzVwd3NtOXo2YWZhMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT1XGCiATaxXxW7pp6/giphy-downsized-large.gif"
 
 # Arquivos
-RANK_FILE_PATH = DATA_DIR / "rankings.json"
 UPDATE_FILE_PATH = DATA_DIR / "last_update.txt"
 CHAT_IDS_FILE_PATH = DATA_DIR / "chat_ids.json"
 USER_IDS_FILE_PATH = DATA_DIR / "user_ids.json"
+RANK_FILE = DATA_DIR / "card_votes.json"
 
 # Constantes
 COOLDOWN_TIME = 60
 chat_cooldowns = {}
+MIN_CARTAS = 10   
 
 # Regex para detectar "Galactus"
 GALACTUS_PATTERN = re.compile(
