@@ -1,0 +1,1918 @@
+[
+  {
+    "name": "Abomination",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "Absorbing Man",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Acid Arrow",
+    "tag": "None"
+  },
+  {
+    "name": "Adam Warlock",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Aero",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Agamotto",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Agatha Harkness",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Agent 13",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Agent Coulson",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Agent Venom",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Agony",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Ajax",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Alioth",
+    "tag": "Series 5"
+  },
+  {
+    "name": "America Chavez",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Angel",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Angela",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Annihilus",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Ant Man",
+    "tag": "Recruit Season"
+  },
+  {
+    "name": "Anti-Venom",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Apocalypse",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Araña",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Ares",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Arishem",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Armor",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Arnim Zola",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Astral Projection",
+    "tag": "None"
+  },
+  {
+    "name": "Attuma",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Baron Mordo",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Baron Zemo",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Basic Arrow",
+    "tag": "None"
+  },
+  {
+    "name": "Bast",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Batroc the Leaper",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Beast",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Beta Ray Bill",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Bishop",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Black Bolt",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Black Cat",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Black Knight",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Black Panther",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Black Swan",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Black Widow",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Blade",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Blink",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Blob",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Blue Marvel",
+    "tag": "Recruit Season"
+  },
+  {
+    "name": "Bolts of Balthakk",
+    "tag": "None"
+  },
+  {
+    "name": "Brood",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Broodling",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Bruce Banner",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Bucky Barnes",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Bullseye",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Cable",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Caiera",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Cannonball",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Cap's Shield",
+    "tag": "None"
+  },
+  {
+    "name": "Captain America",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Captain Carter",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Captain Marvel",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Carnage",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Cassandra Nova",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Cerebro",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Chimichanga",
+    "tag": "None"
+  },
+  {
+    "name": "Clea",
+    "tag": "None"
+  },
+  {
+    "name": "Cloak",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Clobberin' Time",
+    "tag": "None"
+  },
+  {
+    "name": "Cobra",
+    "tag": "None"
+  },
+  {
+    "name": "Colleen Wing",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Colossus",
+    "tag": "Recruit Season"
+  },
+  {
+    "name": "Copycat",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Corvus Glaive",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Cosmo",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Council of Reeds",
+    "tag": "None"
+  },
+  {
+    "name": "Crossbones",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Crystal",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Cull Obsidian",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Cyclops",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "Dagger",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Daken",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Daredevil",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Darkhawk",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Dazzler",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Deadpool",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Death",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Deathlok",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Debrii",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Demon",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Destroyer",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Devil Dinosaur",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Diamondback",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Djinn",
+    "tag": "None"
+  },
+  {
+    "name": "Doctor Doom",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Doctor Doom 2099",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Doctor Octopus",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Doctor Strange",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Domino",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Doombot",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "DoomBot 2099",
+    "tag": "None"
+  },
+  {
+    "name": "Dormammu",
+    "tag": "None"
+  },
+  {
+    "name": "Dracula",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Drax",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Drone",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Dum Dum Dugan",
+    "tag": "None"
+  },
+  {
+    "name": "Ebony Maw",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Echo",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Effect01OverloadedReactor",
+    "tag": "None"
+  },
+  {
+    "name": "Effect02OverloadedReactor",
+    "tag": "None"
+  },
+  {
+    "name": "Effect03OverloadedReactor",
+    "tag": "None"
+  },
+  {
+    "name": "Effect04OverloadedReactor",
+    "tag": "None"
+  },
+  {
+    "name": "Effect05OverloadedReactor",
+    "tag": "None"
+  },
+  {
+    "name": "Effect06OverloadedReactor",
+    "tag": "None"
+  },
+  {
+    "name": "Effect07OverloadedReactor",
+    "tag": "None"
+  },
+  {
+    "name": "Effect08OverloadedReactor",
+    "tag": "None"
+  },
+  {
+    "name": "Effect09OverloadedReactor",
+    "tag": "None"
+  },
+  {
+    "name": "Effect10OverloadedReactor",
+    "tag": "None"
+  },
+  {
+    "name": "Electro",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Elektra",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Elixir",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Elsa Bloodstone",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Emperor Hulkling",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Enchantress",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Esme Cuckoo",
+    "tag": "None"
+  },
+  {
+    "name": "Eson",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Evolved Abomination",
+    "tag": "None"
+  },
+  {
+    "name": "Evolved Cyclops",
+    "tag": "None"
+  },
+  {
+    "name": "Evolved Hulk",
+    "tag": "None"
+  },
+  {
+    "name": "Evolved Misty Knight",
+    "tag": "None"
+  },
+  {
+    "name": "Evolved Shocker",
+    "tag": "None"
+  },
+  {
+    "name": "Evolved The Thing",
+    "tag": "None"
+  },
+  {
+    "name": "Evolved Wasp",
+    "tag": "None"
+  },
+  {
+    "name": "Falcon",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Fan Fei",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Fantasticar",
+    "tag": "None"
+  },
+  {
+    "name": "Fenris Wolf",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Firehair",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Firestar",
+    "tag": "None"
+  },
+  {
+    "name": "Flame On",
+    "tag": "None"
+  },
+  {
+    "name": "Flames Of The Faltine",
+    "tag": "None"
+  },
+  {
+    "name": "Flatman",
+    "tag": "None"
+  },
+  {
+    "name": "Flyrokenesis",
+    "tag": "None"
+  },
+  {
+    "name": "Forge",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Frigga",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Galacta",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Galactus",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Gambit",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Gamora",
+    "tag": "Recruit Season"
+  },
+  {
+    "name": "Ghost",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Ghost Rider",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Ghost-Spider",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Giganto",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Gilgamesh",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Gladiator",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Goblin Queen",
+    "tag": "None"
+  },
+  {
+    "name": "Goliath",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Goose",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Gorgon",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Gorr the God Butcher",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Grand Master",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Grapple Arrow",
+    "tag": "None"
+  },
+  {
+    "name": "Green Goblin",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Groot",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Gwenpool",
+    "tag": "Series 5"
+  },
+  {
+    "name": "H.E.R.B.I.E.",
+    "tag": "None"
+  },
+  {
+    "name": "Havok",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Hawkeye",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "Hawkeye Kate Bishop",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Hazmat",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Heimdall",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Hela",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Helicarrier",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Hellcow",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Hellion",
+    "tag": "None"
+  },
+  {
+    "name": "Helpful Assistance",
+    "tag": "None"
+  },
+  {
+    "name": "Hercules",
+    "tag": "Series 3"
+  },
+  {
+    "name": "High Evolutionary",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Hit-Monkey",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Hobgoblin",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Hope Summers",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Howard the Duck",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Hulk",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "Hulkbuster",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Human Torch",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Human Torch First Steps",
+    "tag": "None"
+  },
+  {
+    "name": "Hydra Bob",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Hydra Stomper",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Ice Cube",
+    "tag": "None"
+  },
+  {
+    "name": "Iceman",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Illusion!",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Images of Ikonn",
+    "tag": "None"
+  },
+  {
+    "name": "Infinity Ultron",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Invisible Woman",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Invisible Woman First Steps",
+    "tag": "None"
+  },
+  {
+    "name": "Iron Fist",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Iron Lad",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Iron Man",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "Iron Patriot",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Ironheart",
+    "tag": "Recruit Season"
+  },
+  {
+    "name": "J. Jonah Jameson",
+    "tag": "None"
+  },
+  {
+    "name": "Jane Foster Mighty Thor",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Jean Grey",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Jeff the Baby Land Shark",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Jennifer Kale",
+    "tag": "None"
+  },
+  {
+    "name": "Jessica Jones",
+    "tag": "Collection Level 1-14"
+  },
+  {
+    "name": "Joaquin Torres Falcon II",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Jubilee",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Juggernaut",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Ka-Zar",
+    "tag": "Collection Level 1-14"
+  },
+  {
+    "name": "Kahhori",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Kang",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Khonshu",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Khonshu Full",
+    "tag": "None"
+  },
+  {
+    "name": "Khonshu Waxing",
+    "tag": "None"
+  },
+  {
+    "name": "Kid Omega",
+    "tag": "None"
+  },
+  {
+    "name": "Killmonger",
+    "tag": "Series 2"
+  },
+  {
+    "name": "King Eitri",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Kingpin",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Kitty Pryde",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Klaw",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Knull",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Korg",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Kraven",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Lady Deathstrike",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Lady Sif",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Lasher",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Laufey",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Leader",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Leech",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Legion",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Lizard",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Lockjaw",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Loki",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Luke Cage",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Luna Snow",
+    "tag": "Series 5"
+  },
+  {
+    "name": "M'Baku",
+    "tag": "Series 3"
+  },
+  {
+    "name": "M.O.D.O.K.",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Mad Thinker",
+    "tag": "None"
+  },
+  {
+    "name": "Madame Web",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Magik",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Magneto",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Makkari",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Malekith",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Man-Thing",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Mantis",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Maria Hill",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Martyr",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Marvel Boy",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Master Mold",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Master Plan",
+    "tag": "None"
+  },
+  {
+    "name": "Maximum Carnage",
+    "tag": "None"
+  },
+  {
+    "name": "Maximus",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Medusa",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "Mephisto",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Mercury",
+    "tag": "None"
+  },
+  {
+    "name": "Merlin",
+    "tag": "None"
+  },
+  {
+    "name": "Miek",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Miles Morales",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Mind Stone",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Mirage",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Misery",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Mister Fantastic",
+    "tag": "Collection Level 1-14"
+  },
+  {
+    "name": "Mister Fantastic First Steps",
+    "tag": "None"
+  },
+  {
+    "name": "Mister Negative",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Mister Sinister",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Misty Knight",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "Mjölnir",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Mobius M. Mobius",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Mockingbird",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Mojo",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Mole Man",
+    "tag": "None"
+  },
+  {
+    "name": "Monster",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Moon Girl",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Moon Knight",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Moonstone",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Morbius",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Morgan le Fay",
+    "tag": "None"
+  },
+  {
+    "name": "Morph",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Ms. Marvel",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Multiple Man",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Mysterio",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Mysterio?",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Mystique",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Nakia",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Namor",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Namora",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Nebula",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Negasonic Teenage Warhead",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Nicholas Scratch",
+    "tag": "None"
+  },
+  {
+    "name": "Nick Fury",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Nico Minoru",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Nico Minoru Spell 01",
+    "tag": "None"
+  },
+  {
+    "name": "Nico Minoru Spell 02",
+    "tag": "None"
+  },
+  {
+    "name": "Nico Minoru Spell 03",
+    "tag": "None"
+  },
+  {
+    "name": "Nico Minoru Spell 04",
+    "tag": "None"
+  },
+  {
+    "name": "Nico Minoru Spell 05",
+    "tag": "None"
+  },
+  {
+    "name": "Nico Minoru Spell 06",
+    "tag": "None"
+  },
+  {
+    "name": "Nico Minoru Spell 07",
+    "tag": "None"
+  },
+  {
+    "name": "Night Nurse",
+    "tag": "None"
+  },
+  {
+    "name": "Nightcrawler",
+    "tag": "Collection Level 1-14"
+  },
+  {
+    "name": "Nightmare",
+    "tag": "None"
+  },
+  {
+    "name": "Nimrod",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Ninja",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Nocturne",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Nova",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Odin",
+    "tag": "Collection Level 1-14"
+  },
+  {
+    "name": "Okoye",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Omega Red",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Omniversal Presence",
+    "tag": "None"
+  },
+  {
+    "name": "Once And Future",
+    "tag": "None"
+  },
+  {
+    "name": "Onslaught",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Orka",
+    "tag": "Series 3"
+  },
+  {
+    "name": "OverloadedReactor",
+    "tag": "None"
+  },
+  {
+    "name": "Patriot",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Peni Parker",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Phastos",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Phoenix Force",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Pig",
+    "tag": "None"
+  },
+  {
+    "name": "Pixie",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Polaris",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Polymorph",
+    "tag": "None"
+  },
+  {
+    "name": "Power Stone",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Prodigy",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Professor X",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Proxima Midnight",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Psylocke",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Punisher",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "PymParticle Arrow",
+    "tag": "None"
+  },
+  {
+    "name": "Quake",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Quicksilver",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "Quinjet",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Random",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Raptor",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Ravonna Renslayer",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Reality Stone",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Red Guardian",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Red Hulk",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Red Skull",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Redwing",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Rescue",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Rhino",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Rock",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Rocket and Groot",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Rocket Raccoon",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Rockslide",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Rogue",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Ronan the Accuser",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Sabretooth",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Sage",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Sam Wilson Captain America",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Sandman",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Sasquatch",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Sauron",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Scarlet Spider",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Scarlet Spider Clone",
+    "tag": "None"
+  },
+  {
+    "name": "Scarlet Witch",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Scorn",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Scorpion",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Scream",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Sebastian Shaw",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Selene",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Sentinel",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "Sentry",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Sera",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Sersi",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Shadow King",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Shang-Chi",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Shanna",
+    "tag": "Series 3"
+  },
+  {
+    "name": "She-Hulk",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Shocker",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "Shuri",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Silk",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Silver Sable",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Silver Samurai",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Silver Surfer",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Sinister Clone",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Skaar",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Snowguard",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Snowguard Bear",
+    "tag": "None"
+  },
+  {
+    "name": "Snowguard Hawk",
+    "tag": "None"
+  },
+  {
+    "name": "Snowguard Wolf",
+    "tag": "None"
+  },
+  {
+    "name": "Soul Stone",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "SP//dr",
+    "tag": "None"
+  },
+  {
+    "name": "Space Stone",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Spectrum",
+    "tag": "Collection Level 1-14"
+  },
+  {
+    "name": "Speed",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Spider-Ham",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Spider-Man",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Spider-Man 2099",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Spider-Woman",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Squirrel",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Squirrel Girl",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Star-Lord",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "Starbrand",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Stature",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Stegron",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Storm",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Stormbreaker",
+    "tag": "None"
+  },
+  {
+    "name": "Strange Supreme",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Strong Guy",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Stryfe",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Subterranean Summons",
+    "tag": "None"
+  },
+  {
+    "name": "Summoning Ritual 1",
+    "tag": "None"
+  },
+  {
+    "name": "Summoning Ritual 2",
+    "tag": "None"
+  },
+  {
+    "name": "Summoning Ritual 3",
+    "tag": "None"
+  },
+  {
+    "name": "Sunspot",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Super-Skrull",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Supergiant",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Surge",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Surtur",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Swarm",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Sword Master",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Symbiote",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Symbiote Spider-Man",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Tao Mandala",
+    "tag": "None"
+  },
+  {
+    "name": "Taskmaster",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Temporal Manipulation",
+    "tag": "None"
+  },
+  {
+    "name": "Thaddeus Ross",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Thanos",
+    "tag": "Series 5"
+  },
+  {
+    "name": "The Ancient One",
+    "tag": "None"
+  },
+  {
+    "name": "The Collector",
+    "tag": "Series 2"
+  },
+  {
+    "name": "The First Ghost Rider",
+    "tag": "Series 4"
+  },
+  {
+    "name": "The Hood",
+    "tag": "Series 3"
+  },
+  {
+    "name": "The Infinaut",
+    "tag": "Series 2"
+  },
+  {
+    "name": "The Living Tribunal",
+    "tag": "Series 4"
+  },
+  {
+    "name": "The Thing",
+    "tag": "Starter Card"
+  },
+  {
+    "name": "The Thing First Steps",
+    "tag": "None"
+  },
+  {
+    "name": "The Void",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Thena",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Thor",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Tiger Spirit",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Time Stone",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Titania",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Toad",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Tombstone",
+    "tag": "None"
+  },
+  {
+    "name": "Topaz",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Toxie Doxie",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Toxin",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Typhoid Mary",
+    "tag": "Series 3"
+  },
+  {
+    "name": "U.S. Agent",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Uatu the Watcher",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Ultron",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Ultron Mind Stone",
+    "tag": "None"
+  },
+  {
+    "name": "Ultron Power Stone",
+    "tag": "None"
+  },
+  {
+    "name": "Ultron Reality Stone",
+    "tag": "None"
+  },
+  {
+    "name": "Ultron Soul Stone",
+    "tag": "None"
+  },
+  {
+    "name": "Ultron Space Stone",
+    "tag": "None"
+  },
+  {
+    "name": "Ultron Time Stone",
+    "tag": "None"
+  },
+  {
+    "name": "Uncle Ben",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Valentina",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Valkyrie",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Venom",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Vibranium",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Victoria Hand",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Viper",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Vision",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Viv Vision",
+    "tag": "None"
+  },
+  {
+    "name": "Vulture",
+    "tag": "Series 2"
+  },
+  {
+    "name": "War Machine",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Warpath",
+    "tag": "Series 2"
+  },
+  {
+    "name": "Wasp",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Wave",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Werewolf By Night",
+    "tag": "Series 4"
+  },
+  {
+    "name": "White Queen",
+    "tag": "Series 1"
+  },
+  {
+    "name": "White Tiger",
+    "tag": "Collection Level 1-14"
+  },
+  {
+    "name": "White Widow",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Wiccan",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Widow's Bite",
+    "tag": "None"
+  },
+  {
+    "name": "Widow's Kiss",
+    "tag": "None"
+  },
+  {
+    "name": "Winds of Watoomb",
+    "tag": "None"
+  },
+  {
+    "name": "Winter Soldier",
+    "tag": "Unreleased"
+  },
+  {
+    "name": "Witchfire",
+    "tag": "None"
+  },
+  {
+    "name": "Wolfsbane",
+    "tag": "Collection Level 1-14"
+  },
+  {
+    "name": "Wolverine",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Wong",
+    "tag": "Series 3"
+  },
+  {
+    "name": "X-23",
+    "tag": "Series 4"
+  },
+  {
+    "name": "Xorn",
+    "tag": "Series 5"
+  },
+  {
+    "name": "Yellowjacket",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Yo-Yo",
+    "tag": "None"
+  },
+  {
+    "name": "Yondu",
+    "tag": "Series 1"
+  },
+  {
+    "name": "Zabu",
+    "tag": "Series 3"
+  },
+  {
+    "name": "Zero",
+    "tag": "Series 3"
+  }
+]

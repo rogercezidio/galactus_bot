@@ -1,24 +1,42 @@
+from asyncio import log
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CallbackContext, ContextTypes ,CommandHandler
+from telegram.ext import (
+    CallbackContext,
+    ContextTypes,
+    CommandHandler,
+    CallbackQueryHandler,
+)
 from utils.cards import get_card_info, format_card_message, atualizar_lista_de_cartas
 from utils.decks import get_decks_keyboard
 from utils.files import load_chat_ids, save_chat_ids, load_last_updated_date
 from utils.ranking import calcular_top_bottom, vote_stats, _format_line
 from config import SPOTLIGHT_URL, COOLDOWN_TIME, chat_cooldowns, MIN_CARTAS
-from utils.snapify import generate_snap_card_with_user_photo 
+from utils.snapify import generate_snap_card_with_user_photo
+from handlers.inline_instructions import INSTRUCOES_INLINE
 import random, asyncio
 import time
 import logging
 
-logger  = logging.getLogger(__name__)
-CHANCE  = 0.1 
+logger = logging.getLogger(__name__)
+CHANCE = 0.1
+
+# Exemplo de cartas e variantes (substitua por dados reais se quiser)
+CARTAS = [
+    {"nome": "Galactus", "variantes": ["Clássica", "Pixel", "Venomized"]},
+    {"nome": "Magneto", "variantes": ["Clássica", "Dan Hipp"]},
+    {"nome": "Wolverine", "variantes": ["Clássica", "X-Force", "Anime"]},
+]
+
 
 def _is_card_error(res: dict | str) -> bool:
     if isinstance(res, str):
         return True
     if res.get("error"):
         return True
-    if res.get("name", "").strip().lower() in {"card not found", "carta não encontrada"}:
+    if res.get("name", "").strip().lower() in {
+        "card not found",
+        "carta não encontrada",
+    }:
         return True
     return False
 
@@ -32,7 +50,9 @@ async def start_command(update: Update, context: CallbackContext) -> None:
         chats.append({"name": chat_name, "chat_id": chat_id})
         save_chat_ids(chats)
 
-    await update.message.reply_text("Olá! Eu sou o Galactus Bot. Estou ouvindo...")
+    await update.message.reply_text(
+        "Olá! Eu sou o Galactus Bot. Estou ouvindo...\n\n" + INSTRUCOES_INLINE
+    )
 
 
 async def decks_command(update: Update, context: CallbackContext) -> None:
@@ -84,14 +104,22 @@ async def card_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if _is_card_error(result):
         if random.random() < CHANCE:
             try:
-                img, cap = await generate_snap_card_with_user_photo(context.bot, message.from_user)
-                await context.bot.send_photo(message.chat_id, img, caption=cap, parse_mode="Markdown")
+                img, cap = await generate_snap_card_with_user_photo(
+                    context.bot, message.from_user
+                )
+                await context.bot.send_photo(
+                    message.chat_id, img, caption=cap, parse_mode="Markdown"
+                )
                 return
             except Exception as e:
                 log.error("Falha snap-card: %s", e)
 
         # fallback clássico (sem KeyError!)
-        msg = result if isinstance(result, str) else result.get("error", "Carta não encontrada.")
+        msg = (
+            result
+            if isinstance(result, str)
+            else result.get("error", "Carta não encontrada.")
+        )
         await message.reply_text(msg, quote=True)
         return
 
@@ -126,11 +154,7 @@ async def ranking_command(update: Update, context: CallbackContext):
         return
 
     _, total_votos = vote_stats()
-    linhas = [
-        "*🏆 Ranking das Cartas*",
-        f"_Total de votos:_ *{total_votos}*",
-        ""
-    ]
+    linhas = ["*🏆 Ranking das Cartas*", f"_Total de votos:_ *{total_votos}*", ""]
 
     linhas.append("🔥 *Top Cards*")
     for pos, (name, media, votos) in enumerate(top, 1):
@@ -147,7 +171,7 @@ async def ranking_command(update: Update, context: CallbackContext):
         parse_mode="Markdown",
         disable_web_page_preview=True,
     )
-    
+
 
 async def atualizar_lista_de_cartas_command(update: Update, context: CallbackContext):
     try:
@@ -155,3 +179,39 @@ async def atualizar_lista_de_cartas_command(update: Update, context: CallbackCon
         await update.message.reply_text("✅ Lista de cartas atualizada com sucesso!")
     except Exception as e:
         await update.message.reply_text(f"❌ Erro ao atualizar cartas: {e}")
+
+
+async def cartas_menu(update: Update, context: CallbackContext):
+    keyboard = [
+        [InlineKeyboardButton(carta["nome"], callback_data=f"carta_{i}")]
+        for i, carta in enumerate(CARTAS)
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("Escolha uma carta:", reply_markup=reply_markup)
+
+
+async def carta_callback(update: Update, context: CallbackContext):
+    query = update.callback_query
+    await query.answer()
+    carta_id = int(query.data.split("_")[1])
+    carta = CARTAS[carta_id]
+    keyboard = [
+        [InlineKeyboardButton(var, callback_data=f"variante_{carta_id}_{i}")]
+        for i, var in enumerate(carta["variantes"])
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await query.edit_message_text(
+        text=f"Escolha uma variante de {carta['nome']}:", reply_markup=reply_markup
+    )
+
+
+async def variante_callback(update: Update, context: CallbackContext):
+    query = update.callback_query
+    await query.answer()
+    _, carta_id, variante_id = query.data.split("_")
+    carta = CARTAS[int(carta_id)]
+    variante = carta["variantes"][int(variante_id)]
+    await query.edit_message_text(
+        text=f"Você escolheu a variante *{variante}* da carta *{carta['nome']}*!",
+        parse_mode="Markdown",
+    )
