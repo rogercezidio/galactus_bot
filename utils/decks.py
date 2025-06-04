@@ -101,7 +101,7 @@ def fetch_updated_date_fast() -> Optional[str]:
         resp = requests.get(DECK_LIST_URL, headers=UA, timeout=8)
         resp.raise_for_status()
     except Exception as exc:
-        log.error("GET %s falhou: %s", DECK_LIST_URL, exc)
+        logger.error("GET %s falhou: %s", DECK_LIST_URL, exc)
         return None
 
     date_html = _extract_date_from_html(resp.text)
