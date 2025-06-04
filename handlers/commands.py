@@ -88,7 +88,7 @@ async def card_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_photo(message.chat_id, img, caption=cap, parse_mode="Markdown")
                 return
             except Exception as e:
-                log.error("Falha snap-card: %s", e)
+                logger.error("Falha snap-card: %s", e)
 
         # fallback clássico (sem KeyError!)
         msg = result if isinstance(result, str) else result.get("error", "Carta não encontrada.")
