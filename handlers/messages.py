@@ -11,11 +11,14 @@ async def galactus_reply(update: Update, context: CallbackContext):
     msg = update.message
     if not msg or not msg.text:
         logging.getLogger(__name__).debug(
-            "galactus_reply: Mensagem vazia ou sem texto, retornando."
+            "galactus_reply: mensagem vazia ou sem texto, retornando."
         )
         return
 
     chat_id = msg.chat.id
+    if str(chat_id) != str(GALACTUS_CHAT_ID):
+        return
+
     user_msg = msg.text
     is_reply = (
         msg.reply_to_message
@@ -37,13 +40,21 @@ async def galactus_reply(update: Update, context: CallbackContext):
         logger = logging.getLogger(__name__)
         try:
             prompt = (
-                f"Todo mundo no grupo sabe que você é Galactus, não precisa se apresentar. Imite Galactus em um grupo do Telegram, responda à seguinte mensagem com a personalidade e o tom de Galactus, pode responder com a máxima precisão possível:\nMensagem: {user_msg}"
+                "Todo mundo no grupo sabe que você é Galactus, não precisa se apresentar."
+                "Imite Galactus em um grupo do Telegram e responda à mensagem a seguir com a personalidade apropriada:\n"
+                f"Mensagem: {user_msg}"
             )
             res = await client.chat.completions.create(
                 model="gpt-4.1-mini",
                 messages=[
-                    {"role": "system", "content": "Você é Galactus, o Devorador de Mundos, você está num grupo do Telegram e todo mundo no grupo sabe quem você é, não precisa se apresentar."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": (
+                            "Você é Galactus, o Devorador de Mundos. "
+                            "Você está em um grupo do Telegram"
+                        ),
+                    },
+                    {"role": "user", "content": prompt},
                 ],
             )
             reply = res.choices[0].message.content
@@ -51,19 +62,29 @@ async def galactus_reply(update: Update, context: CallbackContext):
 
         except Exception as e:
             logger.error(
-                f"Erro em galactus_reply ao tentar interagir com a API OpenAI: {e}",
+                f"Erro em galactus_reply ao interagir com a API OpenAI: {e}",
                 exc_info=True,
             )
-            await msg.reply_text("Galactus está entediado com seus erros humanos...")
+            await msg.reply_text(
+                "Galactus está entediado com seus erros humanos..."
+            )
 
 
 async def edited_message_handler(update: Update, context: CallbackContext):
     msg = update.edited_message
-    if msg and msg.text and GALACTUS_PATTERN.search(msg.text.lower()):
-        chat_id = msg.chat.id
-        if str(chat_id) == str(GALACTUS_CHAT_ID):
-            if random.random() < 0.25:
-                await roast_user(update, context)
-            else:
-                await msg.reply_text("BANIDO! Tua insolência foi notada por Galactus.")
-                await context.bot.send_animation(chat_id=chat_id, animation=GIF_URL)
+    if not (msg and msg.text):
+        return
+
+    chat_id = msg.chat.id
+    if str(chat_id) != str(GALACTUS_CHAT_ID):
+        return  # mantém a restrição em edições também
+
+    if GALACTUS_PATTERN.search(msg.text.lower()):
+        if random.random() < 0.15:
+            await roast_user(update, context)
+        else:
+            await msg.reply_text("BANIDO! Tua insolência foi notada por Galactus.")
+            await context.bot.send_animation(
+                chat_id=chat_id,
+                animation=GIF_URL
+            )

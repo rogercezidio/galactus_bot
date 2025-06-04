@@ -23,7 +23,7 @@ async def daily_curse_by_galactus(update: Update, context: CallbackContext) -> N
     if msg and msg.text and GALACTUS_PATTERN.search(msg.text.lower()):
         chat_id = msg.chat.id
         if str(chat_id) == str(GALACTUS_CHAT_ID):
-            if random.random() < 0.25:
+            if random.random() < 0.15:
                 await roast_user(update, context)
             else:
                 await msg.reply_text("Banido!")
