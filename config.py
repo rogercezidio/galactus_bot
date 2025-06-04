@@ -41,6 +41,7 @@ UPDATE_FILE_PATH = DATA_DIR / "last_update.txt"
 CHAT_IDS_FILE_PATH = DATA_DIR / "chat_ids.json"
 USER_IDS_FILE_PATH = DATA_DIR / "user_ids.json"
 RANK_FILE = DATA_DIR / "card_votes.json"
+CARDS_SENT_FILE = DATA_DIR / "cards_sent.json"
 
 # Constantes
 COOLDOWN_TIME = 60

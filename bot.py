@@ -1,7 +1,7 @@
 import logging
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, PollAnswerHandler
 from config import TOKEN, GALACTUS_PATTERN
-from utils.files import load_chat_ids, load_last_updated_date
+from utils.files import load_chat_ids, load_last_updated_date, load_cards_sent
 from handlers.polls import registrar_resposta_enquete
 from handlers.commands import start_command, decks_command, spotlight_command, ranking_command, card_command, atualizar_lista_de_cartas_command, ranking_command
 from handlers.events import welcome_user, user_left_group
@@ -27,8 +27,10 @@ def main():
     init_data_directory()
     load_last_updated_date()
     load_chat_ids()
+    cards_sent = load_cards_sent()
 
     app = Application.builder().token(TOKEN).build()
+    app.bot_data["cards_sent"] = cards_sent
 
     # comandos
     app.add_handler(CommandHandler("start", start_command))
