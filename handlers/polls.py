@@ -11,7 +11,8 @@ from telegram.ext import (
 from telegram.ext import CallbackContext
 from config import GALACTUS_CHAT_ID
 from utils.cards import CARDS_NAMES, pick_card_without_repetition, get_card_info, format_card_message
-from utils.ranking import registrar_voto 
+from utils.ranking import registrar_voto
+from utils.files import load_active_polls, save_active_polls
 
 VOTE_OPTIONS = ["🏆 Meta", "✅ Boa", "🤔 Situacional", "⚠️ Ruim", "🚫 Injogável"]
 
@@ -60,15 +61,24 @@ async def enviar_enquete_carta_unica(context: CallbackContext):
         is_anonymous=False,
         allows_multiple_answers=False,
     )
-    context.bot_data.setdefault("active_polls", {})[poll.poll.id] = {"carta": carta}
+    context.bot_data.setdefault("active_polls", {})[poll.poll.id] = {
+        "carta": carta
+    }
+    save_active_polls(context.bot_data["active_polls"])
 
 
 
 async def registrar_resposta_enquete(update: Update, context: CallbackContext):
-    poll_data = context.bot_data.get("active_polls", {}).get(update.poll_answer.poll_id)
+    poll_id = update.poll_answer.poll_id
+    poll_data = context.bot_data.get("active_polls", {}).get(poll_id)
     if not poll_data:
-        return
+        context.bot_data["active_polls"] = load_active_polls()
+        poll_data = context.bot_data["active_polls"].get(poll_id)
+        if not poll_data:
+            return
 
     idx = update.poll_answer.option_ids[0]
     score = _OPTION_TO_SCORE.get(idx, 0)
     await registrar_voto(poll_data["carta"], score)
+    context.bot_data["active_polls"].pop(poll_id, None)
+    save_active_polls(context.bot_data["active_polls"])

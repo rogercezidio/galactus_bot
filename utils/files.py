@@ -1,6 +1,12 @@
 import os
 import json
-from config import CHAT_IDS_FILE_PATH, UPDATE_FILE_PATH, CARDS_SENT_FILE, logger
+from config import (
+    CHAT_IDS_FILE_PATH,
+    UPDATE_FILE_PATH,
+    CARDS_SENT_FILE,
+    ACTIVE_POLLS_FILE,
+    logger,
+)
 
 def load_chat_ids():
     if not os.path.exists(CHAT_IDS_FILE_PATH):
@@ -68,4 +74,23 @@ def save_cards_sent(cards_sent: dict):
             json.dump(serializable, f, ensure_ascii=False, indent=2)
     except Exception as e:
         logger.error(f"Erro ao salvar cards enviados: {e}")
+
+
+def load_active_polls() -> dict:
+    if not os.path.exists(ACTIVE_POLLS_FILE):
+        return {}
+    try:
+        with open(ACTIVE_POLLS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Erro ao carregar enquetes ativas: {e}")
+        return {}
+
+
+def save_active_polls(data: dict) -> None:
+    try:
+        with open(ACTIVE_POLLS_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.error(f"Erro ao salvar enquetes ativas: {e}")
 
