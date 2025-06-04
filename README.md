@@ -35,7 +35,7 @@ Create two `.env` files: one for development and one for production.
     GALACTUS_CHAT_ID=your-group-chat-id
     ```
 
-Also create a `.env` with the same content of `.env.prod`
+Also create a `.env` with the same content as `.env.prod`.
 
 Ensure your `.env` files are in the root of the project directory and **do not commit them** to version control (add them to `.gitignore`).
 
