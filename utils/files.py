@@ -1,6 +1,6 @@
 import os
 import json
-from config import CHAT_IDS_FILE_PATH, UPDATE_FILE_PATH, logger
+from config import CHAT_IDS_FILE_PATH, UPDATE_FILE_PATH, CARDS_SENT_FILE, logger
 
 def load_chat_ids():
     if not os.path.exists(CHAT_IDS_FILE_PATH):
@@ -47,4 +47,25 @@ def save_last_updated_date(date):
             logger.info(f"Data de atualização salva: {last_updated_date}")
     except Exception as e:
         logger.error(f"Erro ao salvar data de atualização: {e}")
+
+
+def load_cards_sent():
+    if not os.path.exists(CARDS_SENT_FILE):
+        return {}
+    try:
+        with open(CARDS_SENT_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return {k: set(v) for k, v in data.items()}
+    except Exception as e:
+        logger.error(f"Erro ao carregar cards enviados: {e}")
+        return {}
+
+
+def save_cards_sent(cards_sent: dict):
+    try:
+        serializable = {k: list(v) for k, v in cards_sent.items()}
+        with open(CARDS_SENT_FILE, "w", encoding="utf-8") as f:
+            json.dump(serializable, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.error(f"Erro ao salvar cards enviados: {e}")
 

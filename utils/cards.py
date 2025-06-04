@@ -12,6 +12,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from utils.files import save_cards_sent
 
 logger = logging.getLogger(__name__)
 
@@ -151,13 +152,15 @@ def pick_card_without_repetition(bot_data: dict, card_names: list[str]) -> str:
     Escolhe uma carta aleatória. Garante que cada carta seja usada no máximo 1× por dia.
     Reinicia o ciclo se esgotar todas.
     """
-    used_today: set[str] = bot_data.setdefault("cards_sent", {}).setdefault(_today_key(), set())
+    data = bot_data.setdefault("cards_sent", {})
+    used_today: set[str] = data.setdefault(_today_key(), set())
     remaining = [c for c in card_names if c not in used_today]
     if not remaining:                       
         used_today.clear()
         remaining = card_names
     card = random.choice(remaining)
     used_today.add(card)
+    save_cards_sent(data)
     return card
 
 _EXCLUDED = {"none", "unreleased"}

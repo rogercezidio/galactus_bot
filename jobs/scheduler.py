@@ -3,6 +3,7 @@ from telegram.ext import JobQueue, CallbackContext
 from datetime import time as dt_time 
 from zoneinfo import ZoneInfo         
 from utils.files import load_chat_ids
+from config import GALACTUS_CHAT_ID
 from utils.helpers import send_cosmic_roulette
 from handlers.polls import enviar_enquete_carta_unica
 
@@ -54,5 +55,6 @@ def schedule_link_jobs_for_all_chats(job_queue: JobQueue):
                 name=roulette_name,
             )
 
-        schedule_polls_for_chat(job_queue, chat_id) 
+        if str(chat_id) == str(GALACTUS_CHAT_ID):
+            schedule_polls_for_chat(job_queue, chat_id)
 

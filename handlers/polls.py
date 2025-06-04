@@ -24,6 +24,8 @@ def pergunta_com_chat(carta: str, chat_id: int) -> str:
 
 async def enviar_enquete_carta_unica(context: CallbackContext):
     chat_id = context.job.data.get("chat_id") if context.job else GALACTUS_CHAT_ID
+    if str(chat_id) != str(GALACTUS_CHAT_ID):
+        return
     carta = pick_card_without_repetition(context.bot_data, CARDS_NAMES)
 
     loop = asyncio.get_running_loop()
