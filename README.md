@@ -77,10 +77,12 @@ docker-compose up -d
 
 ### 4. Persisting Data Between Container Restarts
 
-Ensure that the `last_update.txt` file persists between container restarts by mounting a volume.
+Ensure that important data files persist between container restarts by mounting a volume.
 
-- The file is stored at `./app/data/last_update.txt` inside the container.
-- Use Docker volumes to persist the data across container restarts.
+- `last_update.txt` stores the date of the last deck update.
+- `active_polls.json` keeps track of polls that are currently running.
+
+These files are stored inside `./app/data/` in the container. Use Docker volumes to persist them across restarts.
 
 ### 5. Managing Containers
 
