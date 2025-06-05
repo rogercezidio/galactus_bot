@@ -35,18 +35,18 @@ def _save(data: Dict[str, Dict[str, int]]) -> None:
         json.dump(data, fp, ensure_ascii=False, indent=2)
 
 
-async def registrar_voto(carta: str, score: int) -> None:
+async def register_vote(card: str, score: int) -> None:
     """
     Adiciona um voto para `carta`.
     `score` é um inteiro de +2 (🏆 Meta) a -2 (🚫 Injogável).
     """
     async with _LOCK:
         data = _load()
-        row = data.setdefault(carta, _default_row())
+        row = data.setdefault(card, _default_row())
         row["sum"]   += score
         row["count"] += 1
         _save(data)
-    logger.info("Registrado voto %s (%+d).  Total: %s", carta, score, row)
+    logger.info("Registrado voto %s (%+d).  Total: %s", card, score, row)
 
 
 def vote_stats() -> tuple[dict[str, dict], int]:
@@ -56,7 +56,7 @@ def vote_stats() -> tuple[dict[str, dict], int]:
     return data, total
 
 
-def calcular_top_bottom(n: int = 5, minimo_votos: int = 3):
+def calculate_top_bottom(n: int = 5, min_votes: int = 3):
     """
     Retorna (top, flop, total_cartas_votadas)
     • top  : lista ordenada desc, máx n itens
@@ -68,7 +68,7 @@ def calcular_top_bottom(n: int = 5, minimo_votos: int = 3):
     filtrado = [
         (name, row["sum"] / row["count"], row["count"])
         for name, row in data.items()
-        if row["count"] >= minimo_votos
+        if row["count"] >= min_votes
     ]
     if not filtrado:
         return [], [], total_cartas

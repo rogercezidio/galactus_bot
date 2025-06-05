@@ -18,7 +18,6 @@ async def encode_image_async(image_path: str) -> str | None:
 def get_user_profile_photo(user_id, bot):
     """Baixa a foto de perfil do usuário e retorna o caminho local."""
     try:
-        # Função síncrona para uso em contextos não-async
         photos = bot.get_user_profile_photos(user_id)
         if photos.total_count > 0:
             file = bot.get_file(photos.photos[0][-1].file_id)

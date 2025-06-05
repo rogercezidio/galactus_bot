@@ -1,9 +1,9 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext, ContextTypes ,CommandHandler
-from utils.cards import get_card_info, format_card_message, atualizar_lista_de_cartas
+from utils.cards import get_card_info, format_card_message, update_card_list
 from utils.decks import get_decks_keyboard
 from utils.files import load_chat_ids, save_chat_ids, load_last_updated_date
-from utils.ranking import calcular_top_bottom, vote_stats, _format_line
+from utils.ranking import calculate_top_bottom, vote_stats, _format_line
 from config import SPOTLIGHT_URL, COOLDOWN_TIME, chat_cooldowns, MIN_CARTAS
 from utils.snapify import generate_snap_card_with_user_photo 
 import random, asyncio
@@ -56,7 +56,7 @@ async def spotlight_command(update: Update, context: CallbackContext) -> None:
     if chat_id in chat_cooldowns:
         elapsed = now - chat_cooldowns[chat_id]
         if elapsed < COOLDOWN_TIME:
-            return  # cooldown ativo
+            return
 
     chat_cooldowns[chat_id] = now
     keyboard = [[InlineKeyboardButton("Baús de Destaque", url=SPOTLIGHT_URL)]]
@@ -90,7 +90,6 @@ async def card_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             except Exception as e:
                 logger.error("Falha snap-card: %s", e)
 
-        # fallback clássico (sem KeyError!)
         msg = result if isinstance(result, str) else result.get("error", "Carta não encontrada.")
         await message.reply_text(msg, quote=True)
         return
@@ -111,7 +110,7 @@ async def card_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def ranking_command(update: Update, context: CallbackContext):
-    top, flop, total_cartas = calcular_top_bottom()
+    top, flop, total_cartas = calculate_top_bottom()
 
     if total_cartas < MIN_CARTAS:
         await update.message.reply_text(
@@ -149,9 +148,9 @@ async def ranking_command(update: Update, context: CallbackContext):
     )
     
 
-async def atualizar_lista_de_cartas_command(update: Update, context: CallbackContext):
+async def update_card_list_command(update: Update, context: CallbackContext):
     try:
-        atualizar_lista_de_cartas()
+        update_card_list()
         await update.message.reply_text("✅ Lista de cartas atualizada com sucesso!")
     except Exception as e:
         await update.message.reply_text(f"❌ Erro ao atualizar cartas: {e}")

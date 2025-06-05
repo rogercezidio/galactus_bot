@@ -12,9 +12,7 @@ async def check_for_update(context: CallbackContext):
     logger.info("Job 'check_for_update' iniciado.")
 
     current_site_update_date = fetch_updated_date_fast()
-    last_known_update_date = (
-        load_last_updated_date()
-    )  # Esta função já está em utils/files
+    last_known_update_date = load_last_updated_date()
 
     if current_site_update_date:
         if (
@@ -24,11 +22,9 @@ async def check_for_update(context: CallbackContext):
             logger.info(
                 f"Nova atualização detectada! Data do site: {current_site_update_date}, Última conhecida: {last_known_update_date}"
             )
-            save_last_updated_date(
-                current_site_update_date
-            )  # Esta função já está em utils/files
+            save_last_updated_date(current_site_update_date)
 
-            chat_ids_to_notify = load_chat_ids()  # Esta função já está em utils/files
+            chat_ids_to_notify = load_chat_ids()
             if not chat_ids_to_notify:
                 logger.warning(
                     "Nenhum chat ID encontrado para notificar sobre a atualização."
