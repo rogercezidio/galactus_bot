@@ -36,13 +36,10 @@ WELCOME_GIF_URL = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTQwb2dzejFrejhy
 UPDATE_FILE_PATH = DATA_DIR / "last_update.txt"
 CHAT_IDS_FILE_PATH = DATA_DIR / "chat_ids.json"
 USER_IDS_FILE_PATH = DATA_DIR / "user_ids.json"
-RANK_FILE = DATA_DIR / "card_votes.json"
-CARDS_SENT_FILE = DATA_DIR / "cards_sent.json"
-ACTIVE_POLLS_FILE = DATA_DIR / "active_polls.json"
 
 COOLDOWN_TIME = 60
 chat_cooldowns = {}
-MIN_CARTAS = 10   
+_EXCLUDED = {"none", "unreleased"}
 
 GALACTUS_PATTERN = re.compile(
     r"""

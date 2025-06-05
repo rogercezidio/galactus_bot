@@ -3,28 +3,11 @@ from telegram.ext import JobQueue, CallbackContext
 from datetime import time as dt_time 
 from zoneinfo import ZoneInfo         
 from utils.files import load_chat_ids
-from config import GALACTUS_CHAT_ID
 from utils.helpers import send_cosmic_roulette
-from handlers.polls import send_single_card_poll
 
 logger = logging.getLogger(__name__)
 TZ = ZoneInfo("America/Sao_Paulo") 
 
-def schedule_polls_for_chat(job_queue, chat_id: int):
-    poll_base_name = f"hourly_poll_{chat_id}"
-
-    for hour in range(7, 23):          
-        job_name = f"{poll_base_name}_{hour:02d}"
-
-        if job_queue.get_jobs_by_name(job_name):
-            continue
-
-        job_queue.run_daily(
-            send_single_card_poll,
-            time=dt_time(hour=hour, minute=15, tzinfo=TZ),
-            name=job_name,
-            data={"chat_id": chat_id},
-        )
 
 async def send_cosmic_roulette_job(context: CallbackContext):
     job_data = context.job.data
@@ -54,7 +37,4 @@ def schedule_link_jobs_for_all_chats(job_queue: JobQueue):
                 data={"chat_id": chat_id},
                 name=roulette_name,
             )
-
-        if str(chat_id) == str(GALACTUS_CHAT_ID):
-            schedule_polls_for_chat(job_queue, chat_id)
 

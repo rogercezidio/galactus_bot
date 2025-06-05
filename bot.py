@@ -1,18 +1,14 @@
 import logging
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, PollAnswerHandler
+from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from config import TOKEN, GALACTUS_PATTERN
 from utils.files import (
     load_chat_ids,
-    load_last_updated_date,
-    load_cards_sent,
-    load_active_polls,
-)
-from handlers.polls import register_poll_answer
+    load_last_updated_date
+    )
 from handlers.commands import (
     start_command,
     decks_command,
     spotlight_command,
-    ranking_command,
     card_command,
     update_card_list_command,
 )
@@ -39,19 +35,14 @@ def main():
     init_data_directory()
     load_last_updated_date()
     load_chat_ids()
-    cards_sent = load_cards_sent()
-    active_polls = load_active_polls()
 
     app = Application.builder().token(TOKEN).build()
-    app.bot_data["cards_sent"] = cards_sent
-    app.bot_data["active_polls"] = active_polls
 
     app.add_handler(CommandHandler("start", start_command))
     app.add_handler(CommandHandler("decks", decks_command))
     app.add_handler(CommandHandler("card", card_command))
     app.add_handler(CommandHandler("spotlight", spotlight_command))
-    app.add_handler(CommandHandler("ranking", ranking_command))
-    app.add_handler(CommandHandler("atualizar_lista_de_cartas", update_card_list_command))
+    app.add_handler(CommandHandler("update_card_list", update_card_list_command))
 
     app.add_handler(
         MessageHandler(
@@ -70,8 +61,6 @@ def main():
 
     app.job_queue.run_repeating(check_for_update, interval=1800, first=10)
     schedule_link_jobs_for_all_chats(app.job_queue)
-
-    app.add_handler(PollAnswerHandler(register_poll_answer))
 
     app.run_polling()
 

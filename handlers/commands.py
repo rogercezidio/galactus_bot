@@ -3,8 +3,7 @@ from telegram.ext import CallbackContext, ContextTypes
 from utils.cards import get_card_info, format_card_message, update_card_list
 from utils.decks import get_decks_keyboard
 from utils.files import load_chat_ids, save_chat_ids, load_last_updated_date
-from utils.ranking import calculate_top_bottom, vote_stats, _format_line
-from config import SPOTLIGHT_URL, COOLDOWN_TIME, chat_cooldowns, MIN_CARTAS
+from config import SPOTLIGHT_URL, COOLDOWN_TIME, chat_cooldowns
 from utils.snapify import generate_snap_card_with_user_photo 
 import random, asyncio
 import time
@@ -107,46 +106,6 @@ async def card_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         caption=format_card_message(result),
         parse_mode="Markdown",
     )
-
-
-async def ranking_command(update: Update, context: CallbackContext):
-    top, flop, total_cartas = calculate_top_bottom()
-
-    if total_cartas < MIN_CARTAS:
-        await update.message.reply_text(
-            f"Ainda precisamos de mais variedade!\n"
-            f"Atualmente só {total_cartas} cartas receberam votos "
-            f"(mínimo {MIN_CARTAS})."
-        )
-        return
-
-    if not top or not flop:
-        await update.message.reply_text("Ainda não há votos suficientes 🤷‍♂️")
-        return
-
-    _, total_votos = vote_stats()
-    linhas = [
-        "*🏆 Ranking das Cartas*",
-        f"_Total de votos:_ *{total_votos}*",
-        ""
-    ]
-
-    linhas.append("🔥 *Top Cards*")
-    for pos, (name, media, votos) in enumerate(top, 1):
-        linhas.append(_format_line(pos, name, media, votos, flop=False))
-
-    linhas.append("")
-
-    linhas.append("💣 *Bottom Cards*")
-    for pos, (name, media, votos) in enumerate(flop, 1):
-        linhas.append(_format_line(pos, name, media, votos, flop=True))
-
-    await update.message.reply_text(
-        "\n".join(linhas),
-        parse_mode="Markdown",
-        disable_web_page_preview=True,
-    )
-    
 
 async def update_card_list_command(update: Update, context: CallbackContext):
     try:

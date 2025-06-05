@@ -80,7 +80,6 @@ docker-compose up -d
 Ensure that important data files persist between container restarts by mounting a volume.
 
 - `last_update.txt` stores the date of the last deck update.
-- `active_polls.json` keeps track of polls that are currently running.
 
 These files are stored inside `./app/data/` in the container. Use Docker volumes to persist them across restarts.
 

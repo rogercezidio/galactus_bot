@@ -3,8 +3,6 @@ import json
 from config import (
     CHAT_IDS_FILE_PATH,
     UPDATE_FILE_PATH,
-    CARDS_SENT_FILE,
-    ACTIVE_POLLS_FILE,
     logger,
 )
 
@@ -53,45 +51,3 @@ def save_last_updated_date(date):
             logger.info(f"Data de atualização salva: {last_updated_date}")
     except Exception as e:
         logger.error(f"Erro ao salvar data de atualização: {e}")
-
-
-def load_cards_sent():
-    if not os.path.exists(CARDS_SENT_FILE):
-        return {}
-    try:
-        with open(CARDS_SENT_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return {k: set(v) for k, v in data.items()}
-    except Exception as e:
-        logger.error(f"Erro ao carregar cards enviados: {e}")
-        return {}
-
-
-def save_cards_sent(cards_sent: dict):
-    try:
-        serializable = {k: list(v) for k, v in cards_sent.items()}
-        with open(CARDS_SENT_FILE, "w", encoding="utf-8") as f:
-            json.dump(serializable, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        logger.error(f"Erro ao salvar cards enviados: {e}")
-
-
-def load_active_polls() -> dict:
-    if not os.path.exists(ACTIVE_POLLS_FILE):
-        return {}
-    try:
-        with open(ACTIVE_POLLS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as e:
-        logger.error(f"Erro ao carregar enquetes ativas: {e}")
-        return {}
-
-
-def save_active_polls(data: dict) -> None:
-    try:
-        ACTIVE_POLLS_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(ACTIVE_POLLS_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        logger.error(f"Erro ao salvar enquetes ativas: {e}")
-

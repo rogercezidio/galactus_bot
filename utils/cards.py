@@ -1,18 +1,15 @@
 import json, re
-from config import CARD_LIST_PATH
+from config import CARD_LIST_PATH, _EXCLUDED
 from bs4 import BeautifulSoup
 import requests
 from typing import List, Dict
-from pathlib import Path
 import logging
-import random, datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from utils.files import save_cards_sent
 
 logger = logging.getLogger(__name__)
 
@@ -143,27 +140,6 @@ def update_card_list():
         return
     save_cards_to_file(cards, CARD_LIST_PATH)
     print(f"✅ {len(cards)} cartas (com tag) salvas em {CARD_LIST_PATH}")
-
-def _today_key() -> str:
-    return datetime.date.today().isoformat()
-
-def pick_card_without_repetition(bot_data: dict, card_names: list[str]) -> str:
-    """
-    Escolhe uma carta aleatória. Garante que cada carta seja usada no máximo 1× por dia.
-    Reinicia o ciclo se esgotar todas.
-    """
-    data = bot_data.setdefault("cards_sent", {})
-    used_today: set[str] = data.setdefault(_today_key(), set())
-    remaining = [c for c in card_names if c not in used_today]
-    if not remaining:                       
-        used_today.clear()
-        remaining = card_names
-    card = random.choice(remaining)
-    used_today.add(card)
-    save_cards_sent(data)
-    return card
-
-_EXCLUDED = {"none", "unreleased"}
 
 
 def _generate_card_list_if_missing() -> None:
