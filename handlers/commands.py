@@ -3,14 +3,13 @@ from telegram.ext import CallbackContext, ContextTypes
 from utils.cards import get_card_info, format_card_message, update_card_list
 from utils.decks import get_decks_keyboard
 from utils.files import load_chat_ids, save_chat_ids, load_last_updated_date
-from config import COOLDOWN_TIME, chat_cooldowns
+from config import GALACTUS_CHAT_ID
 from utils.snapify import generate_snap_card_with_user_photo 
 import random, asyncio
-import time
 import logging
 
 logger  = logging.getLogger(__name__)
-CHANCE  = 0.1 
+CHANCE  = 0.05
 
 def _is_card_error(res: dict | str) -> bool:
     if isinstance(res, str):
@@ -62,7 +61,11 @@ async def card_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = await loop.run_in_executor(None, get_card_info, card_name)
 
     if _is_card_error(result):
+        if str(chat_id) != str(GALACTUS_CHAT_ID):
+            await message.reply_text("Carta não encontrada ou erro na busca.",quote=True)
+            return
         if random.random() < CHANCE:
+
             try:
                 img, cap = await generate_snap_card_with_user_photo(context.bot, message.from_user)
                 await context.bot.send_photo(message.chat_id, img, caption=cap, parse_mode="Markdown")
