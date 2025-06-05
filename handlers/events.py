@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import CallbackContext
-from config import GROUP_RULES, WELCOME_GIF_URL, GALACTUS_CHAT_ID, GIF_URL
+from config import GROUP_RULES, WELCOME_GIF_URL, GIF_URL
 from utils.api import generate_galactus_welcome, generate_galactus_farewell
 
 

@@ -1,5 +1,4 @@
 import random
-import os
 from pathlib import Path
 from telegram import Update
 from telegram.ext import CallbackContext

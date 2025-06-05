@@ -8,7 +8,6 @@ from utils.files import (
 from handlers.commands import (
     start_command,
     decks_command,
-    spotlight_command,
     card_command,
     update_card_list_command,
 )
@@ -41,7 +40,6 @@ def main():
     app.add_handler(CommandHandler("start", start_command))
     app.add_handler(CommandHandler("decks", decks_command))
     app.add_handler(CommandHandler("card", card_command))
-    app.add_handler(CommandHandler("spotlight", spotlight_command))
     app.add_handler(CommandHandler("update_card_list", update_card_list_command))
 
     app.add_handler(

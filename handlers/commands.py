@@ -1,9 +1,9 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update
 from telegram.ext import CallbackContext, ContextTypes
 from utils.cards import get_card_info, format_card_message, update_card_list
 from utils.decks import get_decks_keyboard
 from utils.files import load_chat_ids, save_chat_ids, load_last_updated_date
-from config import SPOTLIGHT_URL, COOLDOWN_TIME, chat_cooldowns
+from config import COOLDOWN_TIME, chat_cooldowns
 from utils.snapify import generate_snap_card_with_user_photo 
 import random, asyncio
 import time
@@ -46,25 +46,6 @@ async def decks_command(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text(msg, reply_markup=reply_markup)
     else:
         await update.message.reply_text("Falha ao recuperar os decks.")
-
-
-async def spotlight_command(update: Update, context: CallbackContext) -> None:
-    chat_id = update.effective_chat.id
-    now = time.time()
-
-    if chat_id in chat_cooldowns:
-        elapsed = now - chat_cooldowns[chat_id]
-        if elapsed < COOLDOWN_TIME:
-            return
-
-    chat_cooldowns[chat_id] = now
-    keyboard = [[InlineKeyboardButton("Baús de Destaque", url=SPOTLIGHT_URL)]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await update.message.reply_text(
-        "Clique abaixo para ver os próximos baús de destaque:",
-        reply_markup=reply_markup,
-    )
 
 
 async def card_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
