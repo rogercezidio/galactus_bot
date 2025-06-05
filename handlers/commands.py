@@ -61,6 +61,7 @@ async def card_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = await loop.run_in_executor(None, get_card_info, card_name)
 
     if _is_card_error(result):
+        chat_id = message.chat.id
         if str(chat_id) != str(GALACTUS_CHAT_ID):
             await message.reply_text("Carta não encontrada ou erro na busca.",quote=True)
             return
