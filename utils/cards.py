@@ -4,96 +4,57 @@ from bs4 import BeautifulSoup
 import requests
 from typing import List, Dict
 import logging
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
 
 logger = logging.getLogger(__name__)
 
-def _chrome_opts() -> Options:
-    """Configurações padrão para rodar Chrome em headless dentro do container."""
-    opts = Options()
-    opts.add_argument("--headless=new") 
-    opts.add_argument("--no-sandbox")
-    opts.add_argument("--disable-dev-shm-usage")
-    return opts
+def get_card_info(card_name):
+    base_url = "https://marvelsnapzone.com/cards/"
+    card_slug = card_name.lower().replace(" ", "-")
+    url = f"{base_url}{card_slug}/"
 
-def _url_is_image(url: str, timeout=5) -> bool:
+    headers = {"User-Agent": "Mozilla/5.0"}
+
     try:
-        r = requests.head(url, allow_redirects=True, timeout=timeout)
-        return r.ok and r.headers.get("content-type", "").startswith("image/")
-    except Exception:
-        return False
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+    except Exception as e:
+        return f"Erro ao acessar a página da carta: {e}"
 
-def get_card_info(name: str) -> Dict:
-    slug = name.lower().replace(" ", "-")
-    url  = f"https://marvelsnapzone.com/cards/{slug}/"
-    decks_url = f"https://marvelsnapzone.com/decks/{slug}"
+    soup = BeautifulSoup(response.text, "html.parser")
 
-    driver = webdriver.Chrome(options=_chrome_opts())    
-    
-    try:
-        driver.get(url)
+    name_tag = soup.select_one("h1.entry-title")
+    name = name_tag.get_text(strip=True) if name_tag else card_name.title()
 
-        if "404" in driver.title or "Página não encontrada" in driver.page_source:
-            return {"error": f"Carta '{name}' não encontrada.", "slug": slug, "url": url}
+    img_tag = soup.select_one("div.cardimage div.front img")
+    img_url = img_tag["src"] if img_tag and img_tag.get("src") else None
 
-        h1 = WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "main.site-main h1"))
-        ).text.strip()
+    description_tag = soup.select_one("div.cardimage div.front div.info p")
+    description = description_tag.get_text(strip=True) if description_tag else "Descrição não encontrada."
 
+    decks_link_tag = soup.select_one("a.btn.icon.deck-list")
+    decks_link = decks_link_tag["href"] if decks_link_tag and decks_link_tag.get("href") else f"https://marvelsnapzone.com/decks/{card_slug}"
 
-        img_elems = driver.find_elements(By.CSS_SELECTOR, "div.cardimage div.front img")
-        image_url = img_elems[0].get_attribute("src") if img_elems else None
-        if image_url and not _url_is_image(image_url):
-            image_url = None                               
+    card_url = url
 
-        desc_elems = driver.find_elements(
-            By.CSS_SELECTOR, "div.cardimage div.front div.info div"
-        )
-        description = desc_elems[0].text.strip() if desc_elems else "Descrição não encontrada."
-
-        cost  = driver.find_elements(By.CSS_SELECTOR, "div.block .cost")
-        power = driver.find_elements(By.CSS_SELECTOR, "div.block .power span")
-        cost  = cost[0].text.strip()  if cost  else "??"
-        power = power[0].text.strip() if power else "??"
-
-        tag_elems = driver.find_elements(By.CSS_SELECTOR, "div.tags a")
-        tags: List[str] = [t.text.strip() for t in tag_elems if t.text.strip()]
-        series = driver.find_elements(By.XPATH, "//div[div[text()='Source']]/div[@class='info']")
-        if series:
-            tags.append(series[0].text.strip())
-
+    if img_url:
         return {
-            "name": h1,
-            "slug": slug,
-            "url": url,
-            "decks_url": decks_url,
-            "image": image_url,
+            "name": name,
+            "slug": card_slug,
+            "url": card_url,
+            "image": img_url,
             "description": description,
-            "cost": cost,
-            "power": power,
-            "tags": tags,
+            "decks_url": decks_link
         }
-
-    except TimeoutException:
-        return {"error": f"Carta '{name}' não carregou a tempo.", "slug": slug, "url": url}
-    except Exception as exc:
-        return {"error": f"Erro inesperado: {exc}", "slug": slug, "url": url}
-    finally:
-        driver.quit()
+    else:
+        return f"Carta '{card_name}' não encontrada ou sem imagem disponível."
         
 
 def format_card_message(card_data):
-    base = f"**{card_data['name']}**\n\n"
-    stats = f"💰 Custo: {card_data.get('cost', '??')} | 💥 Poder: {card_data.get('power', '??')}\n\n"
-    desc = f"📝 {card_data['description']}\n\n"
-    tags = f"🏷️ {' | '.join(card_data['tags'])}\n\n" if card_data['tags'] else ""
-    links = f"[🔍 Ver detalhes]({card_data['url']}) | [🧩 Ver decks]({card_data['decks_url']})"
-    return base + stats + tags + desc + links
+    return (
+        f"**{card_data['name']}**\n\n"
+        f"📝 {card_data['description']}\n\n"
+        f"[🔍 Ver detalhes]({card_data['url']}) | [🧩 Ver decks]({card_data['decks_url']})"
+    )
 
 
 def get_all_cards_with_tags() -> List[Dict[str, str]]:
