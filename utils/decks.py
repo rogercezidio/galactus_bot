@@ -1,6 +1,3 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from config import DECK_LIST_URL, logger
 import re, logging, requests
@@ -26,41 +23,50 @@ DEFAULT_TIER_EMOJI = "⭐"
 
 def get_decks_keyboard():
     try:
-        options = Options()
-        options.add_argument("--headless")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
+        resp = requests.get(DECK_LIST_URL, headers=UA, timeout=10)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
 
-        driver = webdriver.Chrome(options=options)
-        driver.get(DECK_LIST_URL)
-
-        table = driver.find_element(By.TAG_NAME, "table")
-        rows = table.find_elements(By.TAG_NAME, "tr")[1:]  
+        table = soup.find("table")
+        if not table:
+            logger.error("Tabela de decks não encontrada")
+            return None
 
         keyboard = []
 
-        for row in rows:
-            cols = row.find_elements(By.TAG_NAME, "td")
+        for row in table.find_all("tr")[1:]:
+            cols = row.find_all("td")
             if len(cols) < 2:
                 continue
 
-            tier_text = cols[0].text.strip()
+            tier_text = cols[0].get_text(strip=True)
             tier_emoji = TIER_EMOJIS.get(tier_text, DEFAULT_TIER_EMOJI)
 
-            link_tag = cols[1].find_element(By.TAG_NAME, "a")
-            deck_name = link_tag.text.strip()
-            deck_link = link_tag.get_attribute("href")
+            link_tag = cols[1].find("a", href=True)
+            if not link_tag:
+                continue
+            deck_name = link_tag.get_text(strip=True)
+            deck_link = link_tag["href"]
 
             button_display_text = f"{tier_emoji} {deck_name}"
 
-            html_raw = cols[1].get_attribute("innerHTML")
-            split_parts = html_raw.split("<br>")
+            post_text = ""
+            br = cols[1].find("br")
+            if br:
+                nxt = br.next_sibling
+                while nxt and ((getattr(nxt, "name", None) == "br") or (isinstance(nxt, str) and not nxt.strip())):
+                    nxt = nxt.next_sibling
+                if nxt:
+                    if hasattr(nxt, "get_text"):
+                        post_text = nxt.get_text(" ", strip=True)
+                    else:
+                        post_text = str(nxt).strip()
+            if not post_text:
+                texts = list(cols[1].stripped_strings)
+                if len(texts) > 1:
+                    post_text = texts[1]
 
-            if len(split_parts) > 1:
-                from bs4 import BeautifulSoup
-
-                post_br_html = split_parts[1]
-                post_text = BeautifulSoup(post_br_html, "html.parser").text.strip()
+            if post_text:
                 if "/" in post_text:
                     cube_info, win_rate_info = [p.strip() for p in post_text.split("/", 1)]
                     cube_value = cube_info.split(" ", 1)[0]
@@ -71,11 +77,10 @@ def get_decks_keyboard():
 
             keyboard.append([InlineKeyboardButton(button_display_text, url=deck_link)])
 
-        driver.quit()
         return InlineKeyboardMarkup(keyboard)
 
     except Exception as e:
-        logger.error(f"Erro ao montar teclado de decks com Selenium: {e}")
+        logger.error(f"Erro ao montar teclado de decks: {e}")
         return None
 
 
