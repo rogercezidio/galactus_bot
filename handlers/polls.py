@@ -1,13 +1,6 @@
 import asyncio
-import random
+import time
 from telegram import Update
-from telegram.ext import CallbackContext, CommandHandler
-from utils.ranking import calculate_top_bottom, vote_stats
-from telegram import Update, Poll
-from telegram.ext import (
-    CallbackContext,
-    PollAnswerHandler,
-)
 from telegram.ext import CallbackContext
 from config import GALACTUS_CHAT_ID
 from utils.cards import CARDS_NAMES, pick_card_without_repetition, get_card_info, format_card_message
@@ -18,9 +11,8 @@ VOTE_OPTIONS = ["🏆 Meta", "✅ Boa", "🤔 Situacional", "⚠️ Ruim", "🚫
 
 _OPTION_TO_SCORE = {0: 2, 1: 1, 2: 0, 3: -1, 4: -2}
 
-def question_with_chat(card: str, chat_id: int) -> str:
-    suffix = f" —{str(chat_id)[-3:]}"
-    return f'O que você acha da carta "{card}"?{suffix}'
+def question(card: str) -> str:
+    return f'O que você acha da carta "{card}"?'
 
 async def send_single_card_poll(context: CallbackContext):
     chat_id = context.job.data.get("chat_id") if context.job else GALACTUS_CHAT_ID
@@ -51,7 +43,7 @@ async def send_single_card_poll(context: CallbackContext):
             disable_web_page_preview=True,
         )
     
-    pergunta = question_with_chat(carta, chat_id)
+    pergunta = question(carta)
 
     poll = await context.bot.send_poll(
         chat_id,
@@ -61,7 +53,9 @@ async def send_single_card_poll(context: CallbackContext):
         allows_multiple_answers=False,
     )
     context.bot_data.setdefault("active_polls", {})[poll.poll.id] = {
-        "carta": carta
+        "carta": carta,
+        "chat_id": chat_id,
+        "timestamp": int(time.time()),
     }
     save_active_polls(context.bot_data["active_polls"])
 
