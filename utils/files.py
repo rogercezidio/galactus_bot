@@ -89,6 +89,7 @@ def load_active_polls() -> dict:
 
 def save_active_polls(data: dict) -> None:
     try:
+        ACTIVE_POLLS_FILE.parent.mkdir(parents=True, exist_ok=True)
         with open(ACTIVE_POLLS_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
     except Exception as e:

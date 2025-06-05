@@ -1,5 +1,5 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CallbackContext, ContextTypes ,CommandHandler
+from telegram.ext import CallbackContext, ContextTypes
 from utils.cards import get_card_info, format_card_message, update_card_list
 from utils.decks import get_decks_keyboard
 from utils.files import load_chat_ids, save_chat_ids, load_last_updated_date
