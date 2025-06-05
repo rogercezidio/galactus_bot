@@ -130,18 +130,18 @@ def get_all_cards_with_tags() -> List[Dict[str, str]]:
     return cards
 
 
-def salvar_cards_em_arquivo(cards: List[Dict[str, str]], path: str):
+def save_cards_to_file(cards: List[Dict[str, str]], path: str):
     with open(path, "w", encoding="utf-8") as fp:
         json.dump(cards, fp, ensure_ascii=False, indent=2)
 
 
-def atualizar_lista_de_cartas():
+def update_card_list():
     print("🔄 Baixando grid de cartas (grid mode)…")
     cards = get_all_cards_with_tags()
     if not cards:
         print("❌ Nada encontrado – abortando.")
         return
-    salvar_cards_em_arquivo(cards, CARD_LIST_PATH)
+    save_cards_to_file(cards, CARD_LIST_PATH)
     print(f"✅ {len(cards)} cartas (com tag) salvas em {CARD_LIST_PATH}")
 
 def _today_key() -> str:
@@ -171,8 +171,8 @@ def _generate_card_list_if_missing() -> None:
         return
     logger.warning("%s não encontrado – gerando via scraper…", CARD_LIST_PATH)
     try:
-        from utils.cards import atualizar_lista_de_cartas
-        atualizar_lista_de_cartas()
+        from utils.cards import update_card_list
+        update_card_list()
     except Exception as exc:
         logger.error("Falha ao gerar card_list.json automaticamente: %s", exc)
         raise FileNotFoundError(

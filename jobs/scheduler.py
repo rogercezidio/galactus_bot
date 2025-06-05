@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 from utils.files import load_chat_ids
 from config import GALACTUS_CHAT_ID
 from utils.helpers import send_cosmic_roulette
-from handlers.polls import enviar_enquete_carta_unica
+from handlers.polls import send_single_card_poll
 
 logger = logging.getLogger(__name__)
 TZ = ZoneInfo("America/Sao_Paulo") 
@@ -20,7 +20,7 @@ def schedule_polls_for_chat(job_queue, chat_id: int):
             continue
 
         job_queue.run_daily(
-            enviar_enquete_carta_unica,
+            send_single_card_poll,
             time=dt_time(hour=hour, minute=15, tzinfo=TZ),
             name=job_name,
             data={"chat_id": chat_id},

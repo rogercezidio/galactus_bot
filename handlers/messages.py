@@ -77,7 +77,7 @@ async def edited_message_handler(update: Update, context: CallbackContext):
 
     chat_id = msg.chat.id
     if str(chat_id) != str(GALACTUS_CHAT_ID):
-        return  # mantém a restrição em edições também
+        return
 
     if GALACTUS_PATTERN.search(msg.text.lower()):
         if random.random() < 0.15:
