@@ -9,7 +9,6 @@ from handlers.commands import (
     start_command,
     decks_command,
     card_command,
-    update_card_list_command,
 )
 from handlers.events import welcome_user, user_left_group
 from handlers.messages import galactus_reply, edited_message_handler
@@ -40,7 +39,6 @@ def main():
     app.add_handler(CommandHandler("start", start_command))
     app.add_handler(CommandHandler("decks", decks_command))
     app.add_handler(CommandHandler("card", card_command))
-    app.add_handler(CommandHandler("update_card_list", update_card_list_command))
 
     app.add_handler(
         MessageHandler(

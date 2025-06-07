@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import CallbackContext, ContextTypes
-from utils.cards import get_card_info, format_card_message, update_card_list
+from utils.cards import get_card_info, format_card_message
 from utils.decks import get_decks_keyboard
 from utils.files import load_chat_ids, save_chat_ids, load_last_updated_date
 from config import GALACTUS_CHAT_ID
@@ -92,9 +92,3 @@ async def card_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode="Markdown",
     )
 
-async def update_card_list_command(update: Update, context: CallbackContext):
-    try:
-        update_card_list()
-        await update.message.reply_text("✅ Lista de cartas atualizada com sucesso!")
-    except Exception as e:
-        await update.message.reply_text(f"❌ Erro ao atualizar cartas: {e}")
